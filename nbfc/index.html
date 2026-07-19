@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The NBFC Watchtower · A Field Manual for Bond Investors</title>
+<style>
+  :root{
+    --ink:#12332B;        /* deep banknote green */
+    --ink-soft:#2E5648;
+    --paper:#F7F5EE;      /* ledger paper */
+    --paper-deep:#EEEBDF;
+    --gold:#B8860B;       /* rupee gold */
+    --gold-soft:#D4A72C;
+    --rule:#C9C3AE;       /* hairline ledger rule */
+    --alert:#8C3A2B;      /* distress */
+    --good:#2F6B3F;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation:none!important;transition:none!important;}
+  }
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size:17px;
+    line-height:1.65;
+  }
+  .mono{font-family:'Courier New', Courier, monospace;}
+  a{color:var(--gold);text-decoration-thickness:1px;text-underline-offset:3px;}
+  a:hover, a:focus-visible{color:var(--ink);outline:none;}
+
+  /* ---------- Masthead ---------- */
+  header{
+    border-bottom:3px double var(--ink);
+    padding:2.2rem 1.2rem 1.8rem;
+    text-align:center;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 30px, rgba(18,51,43,.035) 30px, rgba(18,51,43,.035) 31px),
+      var(--paper);
+  }
+  .eyebrow{
+    font-family:'Courier New', monospace;
+    font-size:.72rem;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  h1{
+    font-size:clamp(1.9rem, 6vw, 3.1rem);
+    font-weight:700;
+    letter-spacing:-.01em;
+    margin:.5rem 0 .3rem;
+  }
+  h1 .tilt{
+    display:inline-block;
+    color:var(--gold);
+    font-style:italic;
+  }
+  header p.sub{
+    font-style:italic;
+    color:var(--ink-soft);
+    max-width:34rem;
+    margin:0 auto;
+  }
+  .volume-tag{
+    display:inline-block;
+    margin-top:1rem;
+    font-family:'Courier New', monospace;
+    font-size:.66rem;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+    border:1.5px solid var(--gold);
+    color:var(--gold);
+    padding:.3rem .8rem;
+    border-radius:3px;
+  }
+
+  main{max-width:46rem;margin:0 auto;padding:0 1.2rem 4rem;}
+
+  /* ---------- Posts (sections) ---------- */
+  section{
+    margin-top:3rem;
+    padding-top:2rem;
+    border-top:1px solid var(--rule);
+  }
+  .folio{
+    font-family:'Courier New', monospace;
+    font-size:.7rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--gold);
+    display:block;
+    margin-bottom:.4rem;
+  }
+  h2{
+    font-size:clamp(1.35rem, 4vw, 1.8rem);
+    margin-bottom:1rem;
+    line-height:1.25;
+  }
+  h3.subhead{
+    font-size:1.15rem;
+    margin-top:1.8rem;
+    margin-bottom:.8rem;
+  }
+  p{margin-bottom:1rem;}
+  em{color:var(--ink-soft);}
+  strong{color:var(--ink);}
+
+  .note{
+    background:var(--paper-deep);
+    border-left:3px solid var(--gold);
+    padding:.9rem 1.1rem;
+    margin:1.2rem 0;
+    font-size:.95rem;
+  }
+  .note .mono{font-size:.8rem;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;}
+  .note.alert{border-left-color:var(--alert);}
+  .note.alert .mono{color:var(--alert);}
+
+  .trust{
+    background:var(--paper-deep);
+    border-radius:8px;
+    padding:1.4rem 1.3rem;
+    margin-top:1.2rem;
+  }
+  .trust p:last-child{margin-bottom:0;}
+
+  .detector{
+    border:1.5px dashed var(--ink-soft);
+    border-radius:8px;
+    padding:1.4rem 1.3rem;
+    margin:1.4rem 0;
+  }
+  .detector ol, .detector ul{margin:.6rem 0 .6rem 1.4rem;}
+  .detector li{margin-bottom:.7rem;}
+
+  /* ---------- THE TOWER (hero of Vol III) ---------- */
+  .tower-card{
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    background:var(--paper);
+    padding:1.6rem 1.4rem 1.8rem;
+    margin:1.6rem 0;
+    box-shadow:5px 5px 0 var(--paper-deep);
+  }
+  .tower-card h3{font-size:1.05rem;text-align:center;margin-bottom:.3rem;}
+  .tower-card .hint{
+    text-align:center;font-size:.85rem;font-style:italic;
+    color:var(--ink-soft);margin-bottom:1.3rem;
+  }
+  .tower{
+    max-width:22rem;
+    margin:0 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .floor{
+    width:100%;
+    border:2px solid var(--ink);
+    border-radius:5px;
+    margin-bottom:.45rem;
+    padding:.7rem .9rem;
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:.6rem;
+    cursor:pointer;
+    background:var(--paper);
+    transition:transform .18s ease, box-shadow .18s ease;
+    text-align:left;
+    font-family:inherit;
+    font-size:inherit;
+    color:inherit;
+  }
+  .floor:hover{transform:translateY(-2px);}
+  .floor:focus-visible{outline:3px solid var(--gold);outline-offset:3px;}
+  .floor .fname{
+    font-family:'Courier New', monospace;
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    font-weight:700;
+  }
+  .floor .fcount{
+    font-size:.8rem;
+    font-style:italic;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .floor.f-top{width:46%;}
+  .floor.f-upper{width:66%; background:var(--gold-soft); border-color:var(--gold);}
+  .floor.f-upper .fname{color:var(--ink);}
+  .floor.f-middle{width:84%; background:#F3E6BE; border-color:var(--gold);}
+  .floor.f-base{width:100%; background:var(--paper-deep); color:var(--ink-soft);}
+  .floor.f-base .fname{color:var(--ink-soft);}
+  .floor.lit-tag{position:relative;}
+  .lit-dot{
+    display:inline-block;width:.55rem;height:.55rem;border-radius:50%;
+    background:var(--gold);margin-right:.4rem;vertical-align:baseline;
+    box-shadow:0 0 6px rgba(184,134,11,.7);
+  }
+  .floor.active{box-shadow:0 0 0 3px var(--gold);}
+  .tower-caption{
+    margin-top:1rem;
+    text-align:center;
+    font-size:.92rem;
+    font-style:italic;
+    color:var(--ink-soft);
+    min-height:3.2em;
+    max-width:24rem;
+    margin-left:auto;margin-right:auto;
+  }
+  .ground-line{
+    width:100%;
+    border-bottom:3px double var(--ink);
+    margin-top:.1rem;
+  }
+  .ground-label{
+    font-family:'Courier New', monospace;
+    font-size:.62rem;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    margin-top:.35rem;
+    text-align:center;
+  }
+
+  /* ---------- Watchlist roster ---------- */
+  .roster{
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    padding:1rem 1.1rem 1.1rem;
+    margin:1.1rem 0;
+    background:var(--paper);
+  }
+  .tier-label{
+    display:block;
+    font-family:'Courier New', monospace;
+    font-size:.68rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--gold);
+    margin-bottom:.7rem;
+  }
+  .tier-label em{
+    display:block;
+    font-family:Georgia, 'Times New Roman', serif;
+    font-size:.8rem;
+    letter-spacing:0;
+    text-transform:none;
+    color:var(--ink-soft);
+    margin-top:.15rem;
+    font-weight:400;
+  }
+  .chips{display:flex;flex-wrap:wrap;gap:.45rem;}
+  .chip{
+    border:1.5px solid var(--ink-soft);
+    border-radius:999px;
+    padding:.28rem .7rem;
+    font-size:.82rem;
+    background:var(--paper);
+    white-space:nowrap;
+  }
+  .chip.gold{border-color:var(--gold);background:#F3E6BE;}
+
+  /* ---------- THE SPREAD MACHINE ---------- */
+  .machine-card{
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    background:var(--paper);
+    padding:1.6rem 1.4rem 1.8rem;
+    margin:1.6rem 0;
+    box-shadow:5px 5px 0 var(--paper-deep);
+  }
+  .machine-card h3{font-size:1.05rem;text-align:center;margin-bottom:.3rem;}
+  .machine-card .hint{
+    text-align:center;font-size:.85rem;font-style:italic;
+    color:var(--ink-soft);margin-bottom:1.4rem;
+  }
+  .slider-row{
+    max-width:24rem;
+    margin:1.1rem auto 0;
+  }
+  .slider-row label{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-family:'Courier New', monospace;
+    font-size:.72rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    margin-bottom:.35rem;
+    color:var(--ink-soft);
+  }
+  .slider-row label .cur{
+    font-size:.95rem;
+    font-weight:700;
+    color:var(--ink);
+    letter-spacing:0;
+  }
+  input[type=range]{
+    width:100%;
+    accent-color:var(--gold);
+    cursor:pointer;
+  }
+  input[type=range]:focus-visible{
+    outline:3px solid var(--gold);
+    outline-offset:4px;
+  }
+  .readout{
+    display:flex;
+    justify-content:space-between;
+    gap:.6rem;
+    max-width:26rem;
+    margin:1.5rem auto 0;
+    font-family:'Courier New', monospace;
+    font-size:.85rem;
+    flex-wrap:wrap;
+  }
+  .readout div{flex:1;min-width:5.2rem;text-align:center;}
+  .readout .k{font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);display:block;}
+  .readout .v{font-size:1.2rem;font-weight:700;}
+  .v.good{color:var(--good);}
+  .v.bad{color:var(--alert);}
+  .verdict{
+    text-align:center;
+    margin-top:1rem;
+    font-style:italic;
+    font-size:.95rem;
+    min-height:2.6em;
+    color:var(--ink-soft);
+  }
+
+  /* ---------- P&L waterfall ---------- */
+  .pl-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:.88rem;
+    margin:1.2rem 0;
+  }
+  .pl-table td{
+    padding:.6rem .7rem;
+    border-bottom:1px solid var(--rule);
+    vertical-align:top;
+  }
+  .pl-table td:first-child{font-weight:700;white-space:nowrap;}
+  .pl-table td:last-child{font-size:.85rem;color:var(--ink-soft);}
+  .pl-table tr.keyline td{border-top:2px solid var(--ink);background:var(--paper-deep);}
+  .pl-op{font-family:'Courier New', monospace;color:var(--gold);font-weight:700;width:1.4rem;text-align:center;}
+
+  .vitals{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:.8rem;
+    margin:1.2rem 0;
+  }
+  .vital{
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    padding:.8rem .8rem;
+    background:var(--paper);
+  }
+  .vital .vk{
+    font-family:'Courier New', monospace;
+    font-size:.62rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--gold);
+    display:block;
+    margin-bottom:.25rem;
+  }
+  .vital .vv{font-size:.88rem;line-height:1.45;}
+
+  /* ---------- Feed cards ---------- */
+  .feed{
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    margin:1.1rem 0;
+    overflow:hidden;
+    background:var(--paper);
+  }
+  .feed-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:.6rem;
+    padding:.65rem 1rem;
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Courier New', monospace;
+    font-size:.7rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+  }
+  .feed-head .timing{
+    border:1px solid var(--gold-soft);
+    color:var(--gold-soft);
+    border-radius:3px;
+    padding:.12rem .5rem;
+    font-size:.6rem;
+    letter-spacing:.14em;
+    white-space:nowrap;
+  }
+  .feed-body{padding:1rem 1.1rem;font-size:.93rem;}
+  .feed-body p{margin-bottom:.7rem;}
+  .feed-body .where{
+    font-family:'Courier New', monospace;
+    font-size:.76rem;
+    color:var(--ink-soft);
+    display:block;
+    line-height:1.7;
+  }
+
+  /* ---------- Checklist ---------- */
+  .ritual{
+    border:2px solid var(--ink);
+    border-radius:8px;
+    overflow:hidden;
+    margin:1.4rem 0;
+  }
+  .ritual-head{
+    background:var(--ink);
+    color:var(--paper);
+    padding:.7rem 1.2rem;
+    font-family:'Courier New', monospace;
+    font-size:.72rem;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+  }
+  .ritual-group{
+    padding:1rem 1.2rem .4rem;
+    border-bottom:1px solid var(--rule);
+  }
+  .ritual-group:last-child{border-bottom:none;}
+  .ritual-group .cadence{
+    font-family:'Courier New', monospace;
+    font-size:.66rem;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--gold);
+    display:block;
+    margin-bottom:.6rem;
+  }
+  .check{
+    display:flex;
+    align-items:flex-start;
+    gap:.7rem;
+    margin-bottom:.85rem;
+    font-size:.93rem;
+  }
+  .check input[type=checkbox]{
+    accent-color:var(--gold);
+    width:1.15rem;height:1.15rem;
+    margin-top:.2rem;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .check input[type=checkbox]:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .check label{cursor:pointer;}
+  .check label .why{display:block;font-size:.82rem;font-style:italic;color:var(--ink-soft);}
+
+  /* ---------- Scorecard ---------- */
+  .scorewrap{overflow-x:auto;margin:1.2rem 0;}
+  .scorecard{
+    width:100%;
+    min-width:34rem;
+    border-collapse:collapse;
+    font-size:.83rem;
+    font-family:'Courier New', monospace;
+  }
+  .scorecard th{
+    text-align:left;
+    padding:.55rem .7rem;
+    border-bottom:2px solid var(--ink);
+    font-size:.68rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+  .scorecard td{
+    padding:.55rem .7rem;
+    border-bottom:1px solid var(--rule);
+    vertical-align:top;
+  }
+  .scorecard td[contenteditable="true"]{background:var(--paper-deep);min-width:7rem;}
+  .scorecard td:first-child{font-weight:700;}
+
+  /* ---------- Recall drill ---------- */
+  .drill{
+    border:2px solid var(--ink);
+    border-radius:8px;
+    overflow:hidden;
+    margin:1.4rem 0;
+  }
+  .drill-head{
+    background:var(--ink);
+    color:var(--paper);
+    padding:.7rem 1.2rem;
+    font-family:'Courier New', monospace;
+    font-size:.72rem;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+  }
+  .q{
+    padding:1.1rem 1.2rem;
+    border-bottom:1px solid var(--rule);
+  }
+  .q:last-child{border-bottom:none;}
+  .q p.question{font-weight:700;margin-bottom:.6rem;}
+  .q button{
+    font-family:'Courier New', monospace;
+    font-size:.72rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    background:none;
+    border:1.5px solid var(--gold);
+    color:var(--gold);
+    border-radius:4px;
+    padding:.45rem .9rem;
+    cursor:pointer;
+    transition:background .2s, color .2s;
+  }
+  .q button:hover, .q button:focus-visible{
+    background:var(--gold);
+    color:var(--paper);
+    outline:none;
+  }
+  .q .answer{
+    display:none;
+    margin-top:.8rem;
+    padding:.8rem 1rem;
+    background:var(--paper-deep);
+    border-left:3px solid var(--gold);
+    font-size:.95rem;
+  }
+  .q .answer.show{display:block;animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  footer{
+    border-top:3px double var(--ink);
+    margin-top:3.5rem;
+    padding:1.6rem 1.2rem 2.4rem;
+    text-align:center;
+    font-size:.85rem;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+  footer .mono{font-style:normal;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;display:block;margin-top:.5rem;}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="eyebrow">A Field Manual · Issuer Intelligence for Bond Investors</span>
+  <h1>The NBFC <span class="tilt">Watchtower</span></h1>
+  <p class="sub">Who to watch, how their machine makes money, how to read the disclosures — and the fifteen-minute ritual that keeps you ahead of the queue.</p>
+  <span class="volume-tag">Volume III · Companion to the Price–Yield Ledger</span>
+</header>
+
+<main>
+
+  <!-- ============ POST 01 · THE TERRITORY ============ -->
+  <section>
+    <span class="folio">Post 01 · The Territory</span>
+    <h2>The landscape is a tower. You only watch the lit floors.</h2>
+    <p>Since October 2022, RBI sorts every NBFC into a four-layer tower — <strong>Scale-Based Regulation</strong>. Size and systemic importance decide the floor; the floor decides how hard RBI watches them. Your first act of judgement is knowing which floors even matter to a bond investor.</p>
+
+    <div class="tower-card">
+      <h3>The Scale-Based Tower</h3>
+      <p class="hint">Tap a floor to read what lives there.</p>
+      <div class="tower" role="group" aria-label="RBI scale-based regulation layers">
+        <button class="floor f-top" data-cap="Top Layer — deliberately empty, and still empty in the 31-Mar-2026 registry. RBI reserves it for an NBFC whose risk spikes so high it needs bank-plus supervision. If a name ever appears here, that is itself the signal.">
+          <span class="fname">Top</span><span class="fcount">empty by design</span>
+        </button>
+        <button class="floor f-upper active" data-cap="Upper Layer — 14 systemically important giants, verified name-by-name against the 31-Mar-2026 RBI registry, re-listed by RBI every year, facing bank-like scrutiny. The safest end of your NCD universe lives here.">
+          <span class="fname"><span class="lit-dot" aria-hidden="true"></span>Upper</span><span class="fcount">14 names · bank-like scrutiny</span>
+        </button>
+        <button class="floor f-middle" data-cap="Middle Layer — ≈600 entities: all deposit-takers plus non-deposit NBFCs above ₹1,000 crore assets. This is the NCD heartland — most listed bonds you will ever be offered come from this floor.">
+          <span class="fname"><span class="lit-dot" aria-hidden="true"></span>Middle</span><span class="fcount">≈600 · the NCD heartland</span>
+        </button>
+        <button class="floor f-base" data-cap="Base Layer — ≈8,460 small entities below ₹1,000 crore. Almost none issue listed bonds. This is also where RBI's mass cancellation lists live — defunct shells, not investable issuers.">
+          <span class="fname">Base</span><span class="fcount">≈8,460 · not your universe</span>
+        </button>
+        <div class="ground-line" aria-hidden="true"></div>
+        <div class="ground-label">Ground · unregistered &amp; cancelled entities</div>
+      </div>
+      <p class="tower-caption" id="towerCaption">Upper Layer — 14 systemically important giants, verified name-by-name against the 31-Mar-2026 RBI registry, re-listed by RBI every year, facing bank-like scrutiny. The safest end of your NCD universe lives here.</p>
+    </div>
+
+    <div class="note">
+      <span class="mono">The map in one line</span><br>
+      <strong>Your investable universe is the two lit floors.</strong> Upper Layer for the anchor positions, Middle Layer for the yield — and the deeper you go into the Middle Layer, the harder every later post on this page must work.
+    </div>
+
+    <h3 class="subhead">The Watchlist · the names to know</h3>
+
+    <div class="roster">
+      <span class="tier-label">Tier A · The Upper Layer giants
+        <em>Verified name-by-name against RBI's official registry as on 31-Mar-2026 (14 entities, re-listed every year). The anchor end of the NCD universe.</em>
+      </span>
+      <div class="chips">
+        <span class="chip gold">Bajaj Finance</span>
+        <span class="chip gold">Bajaj Housing Finance</span>
+        <span class="chip gold">LIC Housing Finance</span>
+        <span class="chip gold">Shriram Finance</span>
+        <span class="chip gold">Tata Sons</span>
+        <span class="chip gold">Tata Capital</span>
+        <span class="chip gold">L&amp;T Finance</span>
+        <span class="chip gold">Cholamandalam Inv. &amp; Fin.</span>
+        <span class="chip gold">M&amp;M Financial Services</span>
+        <span class="chip gold">Aditya Birla Capital</span>
+        <span class="chip gold">Muthoot Finance</span>
+        <span class="chip gold">PNB Housing Finance</span>
+        <span class="chip gold">HDB Financial Services</span>
+        <span class="chip gold">Sammaan Capital</span>
+      </div>
+    </div>
+
+    <div class="note alert">
+      <span class="mono">Corrected · 14, not 15</span><br>
+      My earlier caption on this page said "roughly 15" — a memory-based estimate. The actual 31-Mar-2026 RBI registry, checked row by row, shows <strong>exactly 14</strong>. Thirteen of the names above were already right; one had simply been renamed — <strong>Aditya Birla Finance is now Aditya Birla Capital Limited</strong>. Kept visible rather than silently fixed: this is what "verified" should mean on this page from here on.
+    </div>
+
+    <div class="roster">
+      <span class="tier-label">Tier B · Frequent flyers of the retail NCD market
+        <em>Middle Layer names you will keep meeting in public issues and on bond platforms — a starting cast for the scorecard, not endorsements. Rating rationale first, always.</em>
+      </span>
+      <div class="chips">
+        <span class="chip">Edelweiss Financial Services</span>
+        <span class="chip">UGRO Capital</span>
+        <span class="chip">IIFL Finance</span>
+        <span class="chip">Muthoot Fincorp</span>
+        <span class="chip">Muthoottu Mini Financiers</span>
+        <span class="chip">Kosamattam Finance</span>
+        <span class="chip">Indel Money</span>
+        <span class="chip">Manappuram Finance</span>
+        <span class="chip">Navi Finserv</span>
+        <span class="chip">InCred Financial Services</span>
+        <span class="chip">360 ONE Prime</span>
+        <span class="chip">Piramal Finance</span>
+        <span class="chip">Motilal Oswal Financial Services</span>
+      </div>
+    </div>
+
+    <div class="note">
+      <span class="mono">Why the full registry lives at RBI, not on this page</span><br>
+      The complete register runs to <strong>thousands of names and refreshes quarterly</strong> — any copy pasted here would quietly rot, and a Watchtower must never trust a stale map. This page names the recurring cast; the living lists stay one tap away:<br>
+      <span class="mono" style="font-size:.78rem;line-height:1.8;">RBI master lists (layer-wise &amp; category-wise): <a href="https://rbi.org.in/Scripts/BS_NBFCList.aspx">rbi.org.in → BS_NBFCList</a><br>
+      Industry mirror of the same lists: <a href="https://www.fidcindia.org.in/list-of-nbfcs/">fidcindia.org.in → List of NBFCs</a></span>
+    </div>
+
+    <div class="note alert">
+      <span class="mono">Standing correction · cancellations ≠ failures</span><br>
+      RBI's batch cancellations (35 in Dec 2025; 150 + 7 surrenders in May 2026; 135 + 13 in Jun 2026) are overwhelmingly <strong>Base Layer shells</strong> — defunct paper companies, mostly West Bengal and Delhi. The failures that hurt bondholders — IL&amp;FS, DHFL, SREI — surfaced first in <em>rating actions and ALM disclosures</em>, long before any registration action. Watch the right feed (Post 05), not the loudest one. Also note: a November 2025 amendment exempts entities with no public funds and no customer interface from registration entirely — the tower's ground floor keeps shifting.
+    </div>
+  </section>
+
+  <!-- ============ POST 02 · THE MACHINE ============ -->
+  <section>
+    <span class="folio">Post 02 · The Machine</span>
+    <h2>Every NBFC is the same machine: borrow, lend, lose, spend — keep the rest.</h2>
+    <p>Before any P&amp;L makes sense, hold the machine itself. An NBFC borrows money at one rate, lends it at a higher rate, loses some to borrowers who don't pay, spends some running the shop — and what survives is profit. Four numbers. That's the entire business. Run it yourself:</p>
+
+    <div class="machine-card">
+      <h3>The Spread Machine</h3>
+      <p class="hint">Per ₹100 of loans, funded ₹85 by debt and ₹15 by equity (the ~15% capital floor). Move the four levers.</p>
+
+      <div class="slider-row">
+        <label for="yieldSlider">Lending yield · what borrowers pay <span class="cur" id="yieldVal">15.0%</span></label>
+        <input type="range" id="yieldSlider" min="9" max="24" step="0.5" value="15" aria-label="Lending yield percentage">
+      </div>
+      <div class="slider-row">
+        <label for="cofSlider">Cost of funds · what lenders charge it <span class="cur" id="cofVal">9.0%</span></label>
+        <input type="range" id="cofSlider" min="6" max="13" step="0.25" value="9" aria-label="Cost of funds percentage">
+      </div>
+      <div class="slider-row">
+        <label for="ccSlider">Credit cost · loans gone bad <span class="cur" id="ccVal">2.0%</span></label>
+        <input type="range" id="ccSlider" min="0" max="8" step="0.25" value="2" aria-label="Credit cost percentage">
+      </div>
+      <div class="slider-row">
+        <label for="opexSlider">Operating cost · running the shop <span class="cur" id="opexVal">3.0%</span></label>
+        <input type="range" id="opexSlider" min="1" max="6" step="0.25" value="3" aria-label="Operating cost percentage">
+      </div>
+
+      <div class="readout" aria-live="polite">
+        <div><span class="k">NII / ₹100</span><span class="v" id="niiOut">₹7.35</span></div>
+        <div><span class="k">PBT / ₹100</span><span class="v" id="pbtOut">₹2.35</span></div>
+        <div><span class="k">ROA</span><span class="v good" id="roaOut">1.8%</span></div>
+        <div><span class="k">ROE</span><span class="v good" id="roeOut">11.8%</span></div>
+      </div>
+      <p class="verdict" id="machineVerdict">A healthy machine — this is the zone where durable NBFCs live.</p>
+    </div>
+
+    <div class="note">
+      <span class="mono">The rule in one line</span><br>
+      <strong>ROA of 1.5–2.5% is where good NBFCs live; leverage turns it into 12–18% ROE.</strong> Anything richer means one of your sliders is set to a fantasy — usually credit cost, and usually it corrects three years later.
+    </div>
+
+    <p>Notice what the machine teaches: a lender can <em>manufacture growth instantly</em> — approve more loans, book more interest income today. The credit cost of those loans arrives in year two and three. That single time-lag is why every red flag in Post 03 exists.</p>
+  </section>
+
+  <!-- ============ POST 03 · THE GROWTH STORY ============ -->
+  <section>
+    <span class="folio">Post 03 · The Growth Story</span>
+    <h2>Read the strategy the way a lender to the lender would.</h2>
+    <p>You are not buying the company's dream; you are lending it money. So read its growth strategy with one question: <strong>does growth make my coupon safer or riskier?</strong> Three disclosures answer it — all free, all public.</p>
+
+    <div class="detector">
+      <p class="mono" style="font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem;">The three strategy disclosures &amp; what to extract</p>
+      <ol>
+        <li><strong>The loan book mix</strong> (investor presentation, first few slides). Secured vs unsecured share, retail vs wholesale, ticket size, top-20 borrower concentration. <em>Granular, secured, retail = boring = good for a bondholder.</em></li>
+        <li><strong>The borrowing mix</strong> (presentation + annual report). Banks, NCDs, commercial paper, deposits, ECBs. Diversified and long-tenor = resilient. Heavy short-term CP funding long loans = the IL&amp;FS shape.</li>
+        <li><strong>The ALM statement</strong> (annual report notes / rating rationale). Cash inflows vs outflows bucket by bucket. This is your standing lesson from the ledger: <strong>IL&amp;FS and DHFL died of ALM mismatch, not just bad loans.</strong></li>
+      </ol>
+    </div>
+
+    <h3 class="subhead">Red flags vs green flags</h3>
+    <div class="vitals">
+      <div class="vital" style="border-color:var(--alert);">
+        <span class="vk" style="color:var(--alert);">Red · slow down</span>
+        <span class="vv">AUM growing far faster than peers, led by unsecured loans · rising wholesale or developer book · short borrowings funding long assets · related-party lending · promoter pledging · auditor churn.</span>
+      </div>
+      <div class="vital" style="border-color:var(--good);">
+        <span class="vk" style="color:var(--good);">Green · lean in</span>
+        <span class="vv">Granular secured retail book · seasoned loan vintages · diversified long-tenor liabilities · co-lending with banks · stable management &amp; auditors · capital raised <em>before</em> it was needed.</span>
+      </div>
+    </div>
+
+    <div class="trust">
+      <p><strong>The free cheat sheet: the rating rationale.</strong> Every rated NBFC has a public rationale on CRISIL, ICRA, CARE or India Ratings — a trained analyst has already read the book mix, the ALM statement and the strategy, and written down exactly what worries them. It is the single highest-value free document in this entire manual. Read it <em>before</em> the glossy investor presentation, never after.</p>
+    </div>
+  </section>
+
+  <!-- ============ POST 04 · THE P&L, DECODED ============ -->
+  <section>
+    <span class="folio">Post 04 · The P&amp;L, Decoded</span>
+    <h2>Six lines tell you everything. The rest is furniture.</h2>
+    <p>An NBFC's quarterly results look dense; the machine from Post 02 is hiding inside them in plain sight. Here is the waterfall, top to bottom — with what each line whispers to a bondholder:</p>
+
+    <table class="pl-table">
+      <tr>
+        <td>Interest income</td><td class="pl-op">−</td>
+        <td>The lending yield in rupees. Rising faster than AUM? The book is shifting riskier.</td>
+      </tr>
+      <tr>
+        <td>Interest expense</td><td class="pl-op">=</td>
+        <td>Cost of funds. Rising faster than peers'? Lenders are quietly repricing the risk.</td>
+      </tr>
+      <tr class="keyline">
+        <td>Net Interest Income</td><td class="pl-op">+</td>
+        <td>The raw spread. The engine's torque.</td>
+      </tr>
+      <tr>
+        <td>Fee &amp; other income</td><td class="pl-op">−</td>
+        <td>Nice, but never lend against it.</td>
+      </tr>
+      <tr>
+        <td>Operating expenses</td><td class="pl-op">=</td>
+        <td>Cost-to-income ratio lives here; branch-heavy models run higher.</td>
+      </tr>
+      <tr class="keyline">
+        <td>Pre-Provision Profit</td><td class="pl-op">−</td>
+        <td><strong>The shock absorber.</strong> This is what stands between bad loans and your coupon.</td>
+      </tr>
+      <tr>
+        <td>Impairment (ECL)</td><td class="pl-op">=</td>
+        <td>Credit cost. The line management is most tempted to understate.</td>
+      </tr>
+      <tr class="keyline">
+        <td>Profit before tax</td><td class="pl-op">&nbsp;</td>
+        <td>What survived. Compare to PPOP: a thin gap means provisions are eating the cushion.</td>
+      </tr>
+    </table>
+
+    <h3 class="subhead">The vital signs beside the P&amp;L</h3>
+    <div class="vitals">
+      <div class="vital"><span class="vk">GNPA / NNPA</span><span class="vv">Gross &amp; net bad loans as % of book. Watch the <em>trend</em>, not the level — your EFSL discipline (2.45% → 3.35%) applies to every issuer.</span></div>
+      <div class="vital"><span class="vk">Stage 3 &amp; PCR</span><span class="vv">Ind AS impaired assets, and Provision Coverage — how much of the bad book is already provided for. Low PCR = pain deferred, not avoided.</span></div>
+      <div class="vital"><span class="vk">CRAR</span><span class="vv">Capital adequacy; regulatory floor 15%. Distance above the floor = how many bad years the equity can absorb before your queue position matters.</span></div>
+      <div class="vital"><span class="vk">ALM buckets</span><span class="vv">Cumulative mismatch in the under-1-year buckets. The number that killed the giants.</span></div>
+    </div>
+
+    <div class="note">
+      <span class="mono">Where each number lives</span><br>
+      Quarterly results &amp; presentations → <strong>BSE/NSE corporate announcements</strong> · Full ALM &amp; ECL notes → <strong>annual report</strong> · The analyst's synthesis → <strong>rating rationale</strong> · Bond-level terms &amp; security → <strong>placement memorandum / trustee report</strong>.
+    </div>
+  </section>
+
+  <!-- ============ POST 05 · THE FEEDS ============ -->
+  <section>
+    <span class="folio">Post 05 · The Feeds</span>
+    <h2>Four signals, in order of earliness.</h2>
+    <p>Distress announces itself in a fixed sequence. Watch the feeds in this order and you hear the news years apart — watch only the last one and you hear it after the queue has formed.</p>
+
+    <div class="feed">
+      <div class="feed-head"><span>1 · Rating actions</span><span class="timing">Leading</span></div>
+      <div class="feed-body">
+        <p>Downgrades, outlook changes to Negative, and watch placements. IL&amp;FS went AAA → D in weeks, but the outlook chatter started earlier. One downgrade is information; two in a year is a verdict.</p>
+        <span class="where">crisilratings.com · icra.in · careratings.com · indiaratings.co.in — search issuer name → latest rationale</span>
+      </div>
+    </div>
+
+    <div class="feed">
+      <div class="feed-head"><span>2 · Exchange disclosures</span><span class="timing">Coincident</span></div>
+      <div class="feed-body">
+        <p>Listed issuers must disclose interest delays, defaults, resignations of auditors/directors, and results — on the exchange, often before the news covers it.</p>
+        <span class="where">bseindia.com → Corporates → Announcements · nseindia.com → Companies → Announcements — filter by issuer</span>
+      </div>
+    </div>
+
+    <div class="feed">
+      <div class="feed-head"><span>3 · Trustee &amp; bond-level data</span><span class="timing">Structural</span></div>
+      <div class="feed-body">
+        <p>Debenture trustees publish security-cover certificates and default status for each ISIN — this is where "senior secured" gets audited against reality. NSDL's bond database carries ISIN-level terms.</p>
+        <span class="where">indiabondinfo.nsdl.com — ISIN lookup · trustee sites (Catalyst, Axis Trustee, IDBI Trusteeship, SBICAP) · sebi.gov.in</span>
+      </div>
+    </div>
+
+    <div class="feed">
+      <div class="feed-head"><span>4 · RBI actions</span><span class="timing">Lagging</span></div>
+      <div class="feed-body">
+        <p>CoR cancellations and surrenders (monthly-ish batches), penalties, PCA invocations, board supersessions. Confirmation, not prophecy — by the time RBI supersedes a board, feeds 1–3 screamed long ago.</p>
+        <span class="where">rbi.org.in → Press Releases · rbi.org.in → BS_NBFCList (registered / layer lists, refreshed quarterly)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ POST 06 · THE RITUAL ============ -->
+  <section>
+    <span class="folio">Post 06 · The Fifteen-Minute Ritual</span>
+    <h2>Surveillance is a habit, not a project.</h2>
+    <p>The two-cycle coupon test taught you the pattern: small, repeated verification beats occasional heroics. Same discipline here. <em>Checkboxes reset when the page closes — screenshot the completed list into your monthly records, the same way you keep the coupon ledger.</em></p>
+
+    <div class="ritual">
+      <div class="ritual-head">The Watch Rounds</div>
+
+      <div class="ritual-group">
+        <span class="cadence">Monthly · ~15 minutes</span>
+        <div class="check"><input type="checkbox" id="m1"><label for="m1">Rating pages for every held issuer — any action, outlook change, or fresh rationale?<span class="why">Feed 1 · the earliest bell</span></label></div>
+        <div class="check"><input type="checkbox" id="m2"><label for="m2">Exchange announcements for every held issuer — delays, resignations, anything odd?<span class="why">Feed 2 · straight from the source</span></label></div>
+        <div class="check"><input type="checkbox" id="m3"><label for="m3">Coupon credited? Log it in the Volume I ledger — expected vs received.<span class="why">Your own machine, verified</span></label></div>
+      </div>
+
+      <div class="ritual-group">
+        <span class="cadence">Quarterly · results season</span>
+        <div class="check"><input type="checkbox" id="q1"><label for="q1">Pull quarterly results: GNPA/NNPA trend, CRAR, PPOP vs impairment gap.<span class="why">Post 04 vitals, refreshed</span></label></div>
+        <div class="check"><input type="checkbox" id="q2"><label for="q2">Skim the investor presentation: book mix and borrowing mix drifting?<span class="why">Post 03 red flags check</span></label></div>
+      </div>
+
+      <div class="ritual-group">
+        <span class="cadence">Annually</span>
+        <div class="check"><input type="checkbox" id="a1"><label for="a1">Re-pull RBI's Upper &amp; Middle Layer lists — did any held or candidate issuer change floors?<span class="why">Post 01 map, refreshed</span></label></div>
+        <div class="check"><input type="checkbox" id="a2"><label for="a2">Read the trustee's security-cover certificate for each held ISIN.<span class="why">Is the "secured" pot still full?</span></label></div>
+        <div class="check"><input type="checkbox" id="a3"><label for="a3">Read the full-year rating rationale end to end, annual report ALM note beside it.<span class="why">The analyst's year in one page</span></label></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ POST 07 · THE SCORECARD ============ -->
+  <section>
+    <span class="folio">Post 07 · The Scorecard</span>
+    <h2>One row per candidate. No row, no deal.</h2>
+    <p>This is Gate 3 of your five gates, made physical. A candidate that cannot fill this row cleanly does not proceed to price talk. The UGRO row is started from its public listing — <strong>finish it yourself with the 3-source rule before it counts.</strong> Tap any shaded cell to type; screenshot the finished card.</p>
+
+    <div class="scorewrap">
+      <table class="scorecard">
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>UGRO Capital · INE583D07661</th>
+            <th>Next candidate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Layer / type</td><td contenteditable="true">NBFC · verify layer on RBI list</td><td contenteditable="true"></td></tr>
+          <tr><td>Coupon · maturity</td><td contenteditable="true">9.75% fixed · 26-Nov-2027</td><td contenteditable="true"></td></tr>
+          <tr><td>Seniority · security</td><td contenteditable="true">Senior Secured (per listing) · charge on…? cover…x? pari passu?</td><td contenteditable="true"></td></tr>
+          <tr><td>Rating · trajectory</td><td contenteditable="true">Ind-Ra A+ / Positive (per listing) · pull rationale + history</td><td contenteditable="true"></td></tr>
+          <tr><td>GNPA / NNPA trend</td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+          <tr><td>CRAR</td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+          <tr><td>ALM comment</td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+          <tr><td>Borrowing mix</td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+          <tr><td>Book mix (sec/unsec)</td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+          <tr><td>Verdict · gate 3</td><td contenteditable="true"></td><td contenteditable="true"></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <span class="mono">The gate order, unchanged</span><br>
+      Price transparency → yield reality → <strong>this scorecard</strong> → portfolio fit &amp; three-floor framework → the behavioural gate. Issuer intelligence sits in the middle for a reason: a fair price on a failing issuer is still a bad deal.
+    </div>
+  </section>
+
+  <!-- ============ POST 08 · RECALL DRILL ============ -->
+  <section>
+    <span class="folio">Post 08 · Recall Drill</span>
+    <h2>The tower stands only if you can rebuild it from memory.</h2>
+    <p>Answer aloud before revealing. Return tomorrow, then next week — the retrieval is the construction.</p>
+
+    <div class="drill">
+      <div class="drill-head">Retrieval Practice · 6 Questions</div>
+
+      <div class="q">
+        <p class="question">1. Which two floors of the tower contain essentially your entire investable NCD universe — and roughly how many entities live on each?</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer"><strong>Upper Layer</strong> (14 systemically important names, verified against the 31-Mar-2026 registry, refreshed annually) and <strong>Middle Layer</strong> (≈600 — deposit-takers plus non-deposit NBFCs above ₹1,000 crore). The thousands in the Base Layer almost never issue listed bonds.</div>
+      </div>
+
+      <div class="q">
+        <p class="question">2. State the Spread Machine in one sentence — the four levers and what's left over.</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer">Borrow at the <strong>cost of funds</strong>, lend at the <strong>lending yield</strong>, lose the <strong>credit cost</strong>, spend the <strong>operating cost</strong> — what survives, on ~₹15 of equity per ₹100 of loans, is profit. Healthy zone: ROA 1.5–2.5%, ROE 12–18%.</div>
+      </div>
+
+      <div class="q">
+        <p class="question">3. Why is fast AUM growth the easiest number for a lender to fake — and when does the truth arrive?</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer">Because growth just means <strong>approving more loans</strong> — interest income books today, while the credit cost of careless lending lands in <strong>year two and three</strong>. The P&amp;L flatters first and confesses later; that time-lag is the mother of every red flag.</div>
+      </div>
+
+      <div class="q">
+        <p class="question">4. Rank the four feeds by earliness — and which one is confirmation rather than prophecy?</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer"><strong>Rating actions</strong> (leading) → <strong>exchange disclosures</strong> (coincident) → <strong>trustee / security-cover reports</strong> (structural) → <strong>RBI actions</strong> (lagging). RBI cancellations and supersessions confirm what the first three feeds already announced.</div>
+      </div>
+
+      <div class="q">
+        <p class="question">5. Which line of the P&amp;L is the shock absorber between bad loans and your coupon — and which line is management most tempted to understate?</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer"><strong>Pre-Provision Operating Profit</strong> is the cushion; <strong>impairment / credit cost (ECL)</strong> is the temptation. A shrinking gap between PPOP and impairment means the cushion is being eaten in daylight.</div>
+      </div>
+
+      <div class="q">
+        <p class="question">6. What is the single highest-value free document on any rated NBFC — and when do you read it?</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer">The <strong>rating rationale</strong> — a trained analyst's summary of book mix, ALM, capital and strategy, free on the agency's site. Read it <strong>before</strong> the investor presentation, so the company's story lands on a mind that already knows the worries.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  "Watch the issuer, not the price. The price only tells you what the issuer already did."
+  <span class="mono">Volume III · Personal study manual · Not investment advice · Walk the rounds monthly</span>
+</footer>
+
+<script>
+  /* ---------- Tower ---------- */
+  const floors = document.querySelectorAll('.floor');
+  const towerCaption = document.getElementById('towerCaption');
+  floors.forEach(f => {
+    f.addEventListener('click', () => {
+      floors.forEach(x => x.classList.remove('active'));
+      f.classList.add('active');
+      towerCaption.textContent = f.dataset.cap;
+    });
+  });
+
+  /* ---------- Spread Machine ---------- */
+  const yieldS = document.getElementById('yieldSlider');
+  const cofS   = document.getElementById('cofSlider');
+  const ccS    = document.getElementById('ccSlider');
+  const opexS  = document.getElementById('opexSlider');
+
+  const yieldVal = document.getElementById('yieldVal');
+  const cofVal   = document.getElementById('cofVal');
+  const ccVal    = document.getElementById('ccVal');
+  const opexVal  = document.getElementById('opexVal');
+
+  const niiOut = document.getElementById('niiOut');
+  const pbtOut = document.getElementById('pbtOut');
+  const roaOut = document.getElementById('roaOut');
+  const roeOut = document.getElementById('roeOut');
+  const machineVerdict = document.getElementById('machineVerdict');
+
+  const DEBT = 0.85, EQUITY = 15, TAX = 0.25;
+
+  function pct(n){ return n.toFixed(1) + '%'; }
+  function rup(n){ return (n < 0 ? '−₹' : '₹') + Math.abs(n).toFixed(2); }
+
+  function runMachine(){
+    const y  = Number(yieldS.value);
+    const cf = Number(cofS.value);
+    const cc = Number(ccS.value);
+    const ox = Number(opexS.value);
+
+    yieldVal.textContent = pct(y);
+    cofVal.textContent   = pct(cf);
+    ccVal.textContent    = pct(cc);
+    opexVal.textContent  = pct(ox);
+
+    const nii = y - cf * DEBT;              /* per ₹100 of loans */
+    const pbt = nii - ox - cc;
+    const pat = pbt > 0 ? pbt * (1 - TAX) : pbt;
+    const roa = pat;                         /* per ₹100 assets */
+    const roe = pat / EQUITY * 100;
+
+    niiOut.textContent = rup(nii);
+    pbtOut.textContent = rup(pbt);
+    roaOut.textContent = pct(roa);
+    roeOut.textContent = pct(roe);
+
+    [pbtOut, roaOut, roeOut].forEach(el => el.classList.remove('good','bad'));
+    const tone = pbt <= 0 ? 'bad' : (roa >= 1 ? 'good' : '');
+    if (tone){ [pbtOut, roaOut, roeOut].forEach(el => el.classList.add(tone)); }
+
+    if (pbt <= 0){
+      machineVerdict.textContent = 'The machine is eating its own capital — credit cost and expenses have swallowed the spread. This is what a failing NBFC\u2019s P&L looks like from inside.';
+    } else if (roa < 1){
+      machineVerdict.textContent = 'Alive but thin — one bad credit year erases this. Bondholders here are paid for patience, not safety.';
+    } else if (roa <= 2.5){
+      machineVerdict.textContent = 'A healthy machine — this is the zone where durable NBFCs live.';
+    } else {
+      machineVerdict.textContent = 'Unusually rich returns. Ask which lever reality will move: yields this high usually mean tomorrow\u2019s credit cost is hiding in today\u2019s profit.';
+    }
+  }
+
+  [yieldS, cofS, ccS, opexS].forEach(s => s.addEventListener('input', runMachine));
+  runMachine();
+
+  /* ---------- Recall drill ---------- */
+  function reveal(btn){
+    const ans = btn.nextElementSibling;
+    const showing = ans.classList.toggle('show');
+    btn.setAttribute('aria-expanded', showing);
+    btn.textContent = showing ? 'Hide answer' : 'Reveal answer';
+  }
+</script>
+
+</body>
+</html>
