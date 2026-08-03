@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Price–Yield Seesaw · A First-Principles Ledger</title>
+<style>
+  :root{
+    --ink:#12332B;        /* deep banknote green */
+    --ink-soft:#2E5648;
+    --paper:#F7F5EE;      /* ledger paper */
+    --paper-deep:#EEEBDF;
+    --gold:#B8860B;       /* rupee gold */
+    --gold-soft:#D4A72C;
+    --rule:#C9C3AE;       /* hairline ledger rule */
+    --alert:#8C3A2B;      /* markup warning */
+    --good:#2F6B3F;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation:none!important;transition:none!important;}
+  }
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size:17px;
+    line-height:1.65;
+  }
+  .mono{font-family:'Courier New', Courier, monospace;}
+
+  /* ---------- Masthead ---------- */
+  header{
+    border-bottom:3px double var(--ink);
+    padding:2.2rem 1.2rem 1.6rem;
+    text-align:center;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 30px, rgba(18,51,43,.035) 30px, rgba(18,51,43,.035) 31px),
+      var(--paper);
+  }
+  .eyebrow{
+    font-family:'Courier New', monospace;
+    font-size:.72rem;
+    letter-spacing:.28em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+  h1{
+    font-size:clamp(1.9rem, 6vw, 3.1rem);
+    font-weight:700;
+    letter-spacing:-.01em;
+    margin:.5rem 0 .3rem;
+  }
+  h1 .tilt{
+    display:inline-block;
+    color:var(--gold);
+    font-style:italic;
+  }
+  header p.sub{
+    font-style:italic;
+    color:var(--ink-soft);
+    max-width:34rem;
+    margin:0 auto;
+  }
+
+  main{max-width:46rem;margin:0 auto;padding:0 1.2rem 4rem;}
+
+  /* ---------- Ledger sections ---------- */
+  section{
+    margin-top:3rem;
+    padding-top:2rem;
+    border-top:1px solid var(--rule);
+  }
+  .folio{
+    font-family:'Courier New', monospace;
+    font-size:.7rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--gold);
+    display:block;
+    margin-bottom:.4rem;
+  }
+  h2{
+    font-size:clamp(1.35rem, 4vw, 1.8rem);
+    margin-bottom:1rem;
+    line-height:1.25;
+  }
+  p{margin-bottom:1rem;}
+  em{color:var(--ink-soft);}
+  strong{color:var(--ink);}
+
+  .note{
+    background:var(--paper-deep);
+    border-left:3px solid var(--gold);
+    padding:.9rem 1.1rem;
+    margin:1.2rem 0;
+    font-size:.95rem;
+  }
+  .note .mono{font-size:.8rem;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;}
+
+  /* ---------- Fixed coupon stamp ---------- */
+  .stamp-row{
+    display:flex;
+    justify-content:center;
+    margin:1.6rem 0;
+  }
+  .stamp{
+    border:2.5px solid var(--ink);
+    border-radius:6px;
+    padding:1rem 1.6rem;
+    text-align:center;
+    transform:rotate(-1.5deg);
+    box-shadow:3px 3px 0 var(--paper-deep);
+    background:var(--paper);
+  }
+  .stamp .big{
+    font-size:2rem;
+    font-weight:700;
+    font-family:'Courier New', monospace;
+  }
+  .stamp .small{
+    font-size:.7rem;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+  }
+
+  /* ---------- THE SEESAW (signature) ---------- */
+  .seesaw-card{
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    background:var(--paper);
+    padding:1.6rem 1.4rem 2rem;
+    margin:1.6rem 0;
+    box-shadow:5px 5px 0 var(--paper-deep);
+  }
+  .seesaw-card h3{
+    font-size:1.05rem;
+    text-align:center;
+    margin-bottom:.4rem;
+  }
+  .seesaw-card .hint{
+    text-align:center;
+    font-size:.85rem;
+    font-style:italic;
+    color:var(--ink-soft);
+    margin-bottom:1.4rem;
+  }
+  .beam-zone{
+    position:relative;
+    height:130px;
+    margin:0 auto 1rem;
+    max-width:26rem;
+  }
+  .beam{
+    position:absolute;
+    left:50%; top:50%;
+    width:100%;
+    height:7px;
+    background:var(--ink);
+    border-radius:4px;
+    transform-origin:center center;
+    transform:translate(-50%,-50%) rotate(0deg);
+    transition:transform .35s cubic-bezier(.34,1.4,.64,1);
+  }
+  .beam .pan{
+    position:absolute;
+    top:-46px;
+    width:96px;
+    text-align:center;
+    font-family:'Courier New', monospace;
+    font-size:.72rem;
+    letter-spacing:.06em;
+    line-height:1.3;
+  }
+  .beam .pan .val{
+    display:block;
+    font-size:1.05rem;
+    font-weight:700;
+  }
+  .pan-price{left:-8px;}
+  .pan-yield{right:-8px;}
+  .pan-price .val{color:var(--ink);}
+  .pan-yield .val{color:var(--gold);}
+  .fulcrum{
+    position:absolute;
+    left:50%; top:50%;
+    transform:translate(-50%, 2px);
+    width:0;height:0;
+    border-left:16px solid transparent;
+    border-right:16px solid transparent;
+    border-bottom:26px solid var(--ink-soft);
+  }
+  .fulcrum-label{
+    position:absolute;
+    left:50%; bottom:-6px;
+    transform:translateX(-50%);
+    font-family:'Courier New', monospace;
+    font-size:.62rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    white-space:nowrap;
+  }
+  .slider-row{
+    max-width:24rem;
+    margin:1.4rem auto 0;
+    text-align:center;
+  }
+  .slider-row label{
+    display:block;
+    font-family:'Courier New', monospace;
+    font-size:.72rem;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    margin-bottom:.5rem;
+    color:var(--ink-soft);
+  }
+  input[type=range]{
+    width:100%;
+    accent-color:var(--gold);
+    cursor:pointer;
+  }
+  input[type=range]:focus-visible{
+    outline:3px solid var(--gold);
+    outline-offset:4px;
+  }
+  .readout{
+    display:flex;
+    justify-content:space-between;
+    gap:1rem;
+    max-width:24rem;
+    margin:1rem auto 0;
+    font-family:'Courier New', monospace;
+    font-size:.85rem;
+  }
+  .readout div{flex:1;text-align:center;}
+  .readout .k{font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);display:block;}
+  .readout .v{font-size:1.25rem;font-weight:700;}
+  #yieldOut.up{color:var(--good);}
+  #yieldOut.down{color:var(--alert);}
+  #yieldOut.par{color:var(--ink);}
+  .verdict{
+    text-align:center;
+    margin-top:1rem;
+    font-style:italic;
+    font-size:.95rem;
+    min-height:1.6em;
+    color:var(--ink-soft);
+  }
+
+  /* ---------- Mandi analogy ---------- */
+  .mandi{
+    display:grid;
+    grid-template-columns:1fr auto 1fr auto 1fr;
+    align-items:center;
+    gap:.4rem;
+    margin:1.4rem 0;
+    text-align:center;
+    font-size:.85rem;
+  }
+  .mandi .box{
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    padding:.8rem .5rem;
+    background:var(--paper);
+  }
+  .mandi .box .who{
+    font-family:'Courier New', monospace;
+    font-size:.65rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--ink-soft);
+    display:block;
+  }
+  .mandi .box .amt{font-weight:700;font-size:1.05rem;}
+  .mandi .arrow{font-size:1.2rem;color:var(--gold);}
+  .mandi .hidden-fee{
+    grid-column:1 / -1;
+    font-style:italic;
+    color:var(--alert);
+    font-size:.9rem;
+    margin-top:.2rem;
+  }
+
+  /* ---------- Markup detector ---------- */
+  .detector{
+    border:1.5px dashed var(--ink-soft);
+    border-radius:8px;
+    padding:1.4rem 1.3rem;
+    margin:1.4rem 0;
+  }
+  .detector ol{margin:.6rem 0 .6rem 1.4rem;}
+  .detector li{margin-bottom:.7rem;}
+  .two-outcomes{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:1rem;
+    margin-top:1.2rem;
+  }
+  .outcome{
+    border-radius:6px;
+    padding:1rem 1.1rem;
+    font-size:.92rem;
+  }
+  .outcome.fair{border:1.5px solid var(--good);}
+  .outcome.marked{border:1.5px solid var(--alert);}
+  .outcome .tag{
+    font-family:'Courier New', monospace;
+    font-size:.65rem;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    display:block;
+    margin-bottom:.4rem;
+  }
+  .outcome.fair .tag{color:var(--good);}
+  .outcome.marked .tag{color:var(--alert);}
+
+  /* ---------- Trust ledger ---------- */
+  .trust{
+    background:var(--paper-deep);
+    border-radius:8px;
+    padding:1.4rem 1.3rem;
+    margin-top:1.2rem;
+  }
+  .trust p:last-child{margin-bottom:0;}
+
+  /* ---------- Recall drill ---------- */
+  .drill{
+    border:2px solid var(--ink);
+    border-radius:8px;
+    overflow:hidden;
+    margin:1.4rem 0;
+  }
+  .drill-head{
+    background:var(--ink);
+    color:var(--paper);
+    padding:.7rem 1.2rem;
+    font-family:'Courier New', monospace;
+    font-size:.72rem;
+    letter-spacing:.24em;
+    text-transform:uppercase;
+  }
+  .q{
+    padding:1.1rem 1.2rem;
+    border-bottom:1px solid var(--rule);
+  }
+  .q:last-child{border-bottom:none;}
+  .q p.question{font-weight:700;margin-bottom:.6rem;}
+  .q button{
+    font-family:'Courier New', monospace;
+    font-size:.72rem;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    background:none;
+    border:1.5px solid var(--gold);
+    color:var(--gold);
+    border-radius:4px;
+    padding:.45rem .9rem;
+    cursor:pointer;
+    transition:background .2s, color .2s;
+  }
+  .q button:hover, .q button:focus-visible{
+    background:var(--gold);
+    color:var(--paper);
+    outline:none;
+  }
+  .q .answer{
+    display:none;
+    margin-top:.8rem;
+    padding:.8rem 1rem;
+    background:var(--paper-deep);
+    border-left:3px solid var(--gold);
+    font-size:.95rem;
+  }
+  .q .answer.show{display:block;animation:fadeIn .35s ease;}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  footer{
+    border-top:3px double var(--ink);
+    margin-top:3.5rem;
+    padding:1.6rem 1.2rem 2.4rem;
+    text-align:center;
+    font-size:.85rem;
+    color:var(--ink-soft);
+    font-style:italic;
+  }
+  footer .mono{font-style:normal;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;display:block;margin-top:.5rem;}
+</style>
+</head>
+<body>
+
+<header>
+  <span class="eyebrow">A Personal Ledger · Fixed Income, First Principles</span>
+  <h1>The Price–Yield <span class="tilt">Seesaw</span></h1>
+  <p class="sub">What actually happened when you bought a bond in the secondary market — and how to see a hidden markup with your own eyes.</p>
+</header>
+
+<main>
+
+  <!-- ============ PRINCIPLE 1 ============ -->
+  <section>
+    <span class="folio">Entry 01 · The Fixed Promise</span>
+    <h2>The coupon is carved in stone. Everything else moves.</h2>
+    <p>A bond like your EFSL NCD makes one unbreakable promise: it pays <strong>9.21% of its face value, every year, until maturity</strong>. If the face value is ₹1,000 per unit, that is <strong>₹92.10 per unit, per year</strong> — rain or shine, whether markets rise or fall.</p>
+    <div class="stamp-row">
+      <div class="stamp">
+        <span class="small">Coupon · Never Changes</span>
+        <span class="big">₹92.10 / yr</span>
+        <span class="small">per ₹1,000 face value</span>
+      </div>
+    </div>
+    <p>Hold that stamp in your mind. It never moves again for the rest of this page. What moves is the <em>price you pay to receive it</em>.</p>
+  </section>
+
+  <!-- ============ PRINCIPLE 2 — SEESAW ============ -->
+  <section>
+    <span class="folio">Entry 02 · The Seesaw</span>
+    <h2>Yield is what <em>you</em> earn on what <em>you</em> paid.</h2>
+    <p>The ₹92.10 payment is fixed — but your purchase price is not. Your real earning rate (<strong>yield</strong>) is simply that fixed payment divided by <em>your</em> price. Drag the slider below and watch the seesaw tilt. This is the entire principle, experienced directly:</p>
+
+    <div class="seesaw-card">
+      <h3>Try it: pay more, earn less. Pay less, earn more.</h3>
+      <p class="hint">The coupon (₹92.10) never changes — only your price does.</p>
+
+      <div class="beam-zone">
+        <div class="beam" id="beam">
+          <div class="pan pan-price">PRICE<span class="val" id="pricePan">₹1,000</span></div>
+          <div class="pan pan-yield">YIELD<span class="val" id="yieldPan">9.21%</span></div>
+        </div>
+        <div class="fulcrum"></div>
+        <div class="fulcrum-label">Coupon fixed at ₹92.10</div>
+      </div>
+
+      <div class="slider-row">
+        <label for="priceSlider">Your purchase price per unit</label>
+        <input type="range" id="priceSlider" min="900" max="1100" step="5" value="1000"
+               aria-label="Purchase price per unit in rupees">
+      </div>
+
+      <div class="readout">
+        <div><span class="k">You Pay</span><span class="v" id="priceOut">₹1,000</span></div>
+        <div><span class="k">You Receive</span><span class="v">₹92.10/yr</span></div>
+        <div><span class="k">Your Yield</span><span class="v par" id="yieldOut">9.21%</span></div>
+      </div>
+      <p class="verdict" id="verdict">At face value — you earn exactly the coupon rate.</p>
+    </div>
+
+    <div class="note">
+      <span class="mono">The rule in one line</span><br>
+      <strong>Price up → yield down. Price down → yield up.</strong> The seesaw never breaks, because the coupon at the centre never moves.
+    </div>
+  </section>
+
+  <!-- ============ PRINCIPLE 3 — MANDI ============ -->
+  <section>
+    <span class="folio">Entry 03 · Where the Fee Hides</span>
+    <h2>A markup hides in the price, not on a receipt.</h2>
+    <p>You know this pattern from the farm gate. Suppose the mandi rate for your crop is ₹100/kg. A trader buys at ₹100 and sells onward at ₹104. The final buyer never sees a "commission" line anywhere — the ₹4 was folded silently into the price.</p>
+
+    <div class="mandi">
+      <div class="box"><span class="who">Farmer sells at</span><span class="amt">₹100/kg</span></div>
+      <div class="arrow">→</div>
+      <div class="box"><span class="who">Trader</span><span class="amt">+₹4</span></div>
+      <div class="arrow">→</div>
+      <div class="box"><span class="who">Buyer pays</span><span class="amt">₹104/kg</span></div>
+      <div class="hidden-fee">No receipt ever says "commission: ₹4." It lived inside the price.</div>
+    </div>
+
+    <p>Secondary-market bonds work <strong>exactly the same way</strong>. If the market was trading your EFSL units at ₹1,000 on your purchase date, and you were sold them at ₹1,020 — that ₹20 per unit was the intermediary's earning. It never appeared as a fee. It simply lowered your yield, quietly, via the seesaw you just operated above.</p>
+  </section>
+
+  <!-- ============ THE DETECTOR ============ -->
+  <section>
+    <span class="folio">Entry 04 · The One-Comparison Test</span>
+    <h2>How to see it with your own eyes.</h2>
+    <div class="detector">
+      <p><strong>The test requires exactly one comparison:</strong> what were <em>other people</em> paying for the same ISIN around your purchase date?</p>
+      <ol>
+        <li>Note your <strong>ISIN</strong> and your <strong>purchase price per unit</strong> from your contract note.</li>
+        <li>Look up historical trades for that ISIN on the <strong>NSE or BSE debt-segment trade reports</strong> for dates around your purchase.</li>
+        <li>Compare the traded prices against yours.</li>
+      </ol>
+      <div class="two-outcomes">
+        <div class="outcome fair">
+          <span class="tag">Outcome A · Fair Deal</span>
+          Your price ≈ market price. The intermediary's commission came out of <strong>Nuvama's own spread</strong> — it cost you little or nothing extra.
+        </div>
+        <div class="outcome marked">
+          <span class="tag">Outcome B · Embedded Markup</span>
+          Market traded meaningfully <strong>below</strong> your price. The gap was the markup — and it came out of <strong>your return</strong>, via a lower yield.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TRUST ============ -->
+  <section>
+    <span class="folio">Entry 05 · On Paying a Professional</span>
+    <h2>Knowing the price of trust is not distrust.</h2>
+    <div class="trust">
+      <p>Paying a professional to lead, take responsibility, and stand by you if things go south is a <strong>legitimate trade</strong> — one many wise investors choose deliberately. Nothing on this page argues against it.</p>
+      <p>The purpose of the one-comparison test is narrower and simpler: to convert an <em>invisible number</em> into a <em>known number</em>. Once you know what the leadership costs, paying it becomes a choice you made — not a figure you never saw. That is the whole difference between delegation and blind delegation.</p>
+    </div>
+  </section>
+
+  <!-- ============ COMMISSION & NEGOTIATION ============ -->
+  <section>
+    <span class="folio">Entry 07 · The Intermediary's Ledger</span>
+    <h2>Know the number before the handshake.</h2>
+
+    <p>First, fix the roles in your mind — this is where the earlier confusion lived:</p>
+    <div class="mandi">
+      <div class="box"><span class="who">Seller</span><span class="amt">Nuvama</span></div>
+      <div class="arrow">→</div>
+      <div class="box"><span class="who">Intermediary</span><span class="amt">Karan</span></div>
+      <div class="arrow">→</div>
+      <div class="box"><span class="who">Buyer</span><span class="amt">You</span></div>
+      <div class="hidden-fee">Karan is the mandi trader — never a party on the contract note, which is exactly why his earning stays invisible.</div>
+    </div>
+
+    <h2 style="font-size:1.15rem;margin-top:1.8rem;">Traditional commission bands · Indian market</h2>
+    <p><em>Industry-pattern estimates, not knowledge of any specific arrangement. Use these as your pre-meeting calculator.</em></p>
+
+    <div class="detector">
+      <p class="mono" style="font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem;">On a ₹45,00,000 secondary-market NCD deal</p>
+      <ol>
+        <li><strong>Referral / sub-broker fee:</strong> 0.25% – 1.00% of invested amount → <span class="mono"><strong>₹11,250 – ₹45,000</strong></span></li>
+        <li><strong>Embedded price markup (most common):</strong> 0.50% – 2.00% of transaction value → <span class="mono"><strong>₹22,500 – ₹90,000</strong></span></li>
+        <li><strong>Combined typical zone:</strong> most retail deals of this size land around 0.5% – 1.5% total → <span class="mono"><strong>₹22,500 – ₹67,500</strong></span></li>
+      </ol>
+      <p style="margin-top:.8rem;font-size:.92rem;"><em>Before any future deal, run this in your head: investment × 1% is your anchor. On ₹45L, anchor = <strong>₹45,000</strong>. Anything the intermediary discloses gets compared against that anchor — above it, you negotiate; near or below it, it's within market norms.</em></p>
+    </div>
+
+    <h2 style="font-size:1.15rem;margin-top:1.8rem;">The negotiation skill, in four moves</h2>
+
+    <div class="detector" style="border-style:solid;">
+      <p class="mono" style="font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:.8rem;">Move 1, opened up · How anchoring actually works</p>
+      <p><strong>The core law: a mind cannot ignore a number it has heard.</strong> Psychologists Tversky &amp; Kahneman showed that even a <em>random</em> number changes people's later estimates. The first figure spoken in any negotiation becomes the <strong>anchor</strong> — the reference point every later number is judged against.</p>
+      <p><strong>Why the brain obeys:</strong> judging "is ₹67,500 fair?" from nothing is hard work; the mind has no built-in scale for money. So it borrows the nearest scale available — whichever number arrived first — and then <em>adjusts</em> from it. The flaw: <strong>adjustment is almost always insufficient</strong>. People drift a little from the anchor, never all the way to the truth.</p>
+      <p><strong>The mandi demonstration:</strong> a trader opens "gobhi ₹60/kg, best rate." You counter ₹80; he "concedes" ₹68 — and it feels like a win. But if that day's wholesale rate was ₹85, the whole dance happened on <em>his</em> ground. His opening number defined what winning felt like. Reverse it: the farmer who checked the rate board speaks first — "board says ₹85, mine's better, ₹90" — and now the trader is the one adjusting insufficiently around <em>your</em> anchor.</p>
+      <p><strong>The three faculties the skill runs on — all already yours:</strong></p>
+      <ol>
+        <li><strong>Preparation</strong> (memory + arithmetic): an anchor works only if you carry a number <em>into</em> the room. Your verified 1% = ₹45,000 is that number. A defensible anchor beats an invented one.</li>
+        <li><strong>Initiative</strong> (composure): naming money first costs a moment of social discomfort; the one who hesitates cedes the frame. Calm delivery makes your anchor sound like a fact, not a bid.</li>
+        <li><strong>Discipline</strong> (emotional regulation): once your anchor is placed, <em>go silent</em>. The other mind is now adjusting around your number — extra talk only hands them material to re-anchor.</li>
+      </ol>
+      <p style="font-size:.92rem;"><em>Note the rhyme with Entry 08: prepare the verified number, present it calmly, let it stand. Negotiation and verification are one skill wearing two coats.</em></p>
+    </div>
+
+    <div class="trust">
+      <p><strong>1 · Anchor before he does.</strong> Walk in knowing the band (above). The person who names the reference range first controls the conversation.</p>
+      <p><strong>2 · Ask in structure, not in suspicion.</strong> "What is the total cost to me — markup plus any referral fee — expressed as a percentage?" A percentage question is professional; a "how much did you make off me" question is personal.</p>
+      <p><strong>3 · Trade volume for rate.</strong> Your leverage is repeat business. "I intend to route my fixed-income deals through you for years — at that volume, I'd expect the total cost per deal to sit at X%." Long relationships justify thinner margins; say so explicitly.</p>
+      <p><strong>4 · Make disclosure the condition, not the request.</strong> The deal-by-deal rule below does this for you.</p>
+    </div>
+
+    <h2 style="font-size:1.15rem;margin-top:1.8rem;">The affirmative statement · for Karan Puri, directly</h2>
+    <div class="note" style="border-left-color:var(--ink);">
+      <span class="mono" style="color:var(--ink);">Say it once, calmly, and let it stand</span><br><br>
+      "Karan, I value this relationship and I intend for it to last years, not transactions. From here on, I have one standing condition: <strong>before every deal, you tell me in writing what you earn from it — markup, referral, or both, as a rupee figure or a percentage.</strong> I'm not asking because I object to you earning — a professional who leads and stays accountable deserves to be paid. I'm asking because I will not make decisions in the dark. Transparency is what makes me a long-term client instead of a one-time one. If the number is fair, you'll never hear a complaint from me. If it can't be shared, that itself tells me what I need to know."
+    </div>
+    <p style="font-size:.92rem;"><em>Note what this statement does: it affirms his worth, converts disclosure into the price of your loyalty, and removes every escape route without a single accusatory word. His response — not the commission figure — becomes your real data point.</em></p>
+  </section>
+
+  <!-- ============ VERIFICATION TOOLKIT ============ -->
+  <section>
+    <span class="folio">Entry 08 · The Verification Toolkit</span>
+    <h2>Never hold a number you cannot reproduce yourself.</h2>
+
+    <p>Entry 07 gave you an anchor — but an anchor someone else hands you is just another blind spot wearing a friendlier face. This entry is the machinery to <strong>reproduce every number from an independent source</strong>. That is the entire intelligence mindset, in one discipline.</p>
+
+    <div class="trust">
+      <p><strong>The mindset:</strong> smart investors are not people who know more numbers. They are people who know <em>where every number comes from</em> — and can walk the trail without anyone's permission. The moment you can verify, an intermediary's only durable value becomes genuine service: sourcing, execution, accountability. Ignorance-dependence is fragile; service-dependence lasts.</p>
+    </div>
+
+    <h2 style="font-size:1.15rem;margin-top:1.8rem;">Three independent checks · in order of authority</h2>
+    <div class="detector">
+      <ol>
+        <li>
+          <strong>Exchange trade reports — the ground truth.</strong><br>
+          Every listed NCD trade must be reported to the exchange. NSE and BSE publish daily corporate-bond trade data: ISIN, traded price, traded yield. Search your ISIN for dates around any purchase. This is the market price <em>no one can argue with</em> — it verifies both a past deal and any anchor figure anyone (including an AI) hands you.
+          <br><span class="mono" style="font-size:.75rem;">Where: NSE → Market Data → Bonds/Corporate Bonds · BSE → Debt segment trade reports</span>
+        </li>
+        <li>
+          <strong>Competing quotes — the live band.</strong><br>
+          Before any future deal, pull the same ISIN's offer yield from two platforms you have already vetted (Wint Wealth, GoldenPi, IndiaBonds). Three quotes on one ISIN = the market band. Karan's offer sits inside it, or it doesn't. The gap between platform quotes and exchange-traded prices <em>is</em> the intermediary margin — observed, not assumed.
+        </li>
+        <li>
+          <strong>The paper calculation — yours alone.</strong><br>
+          Exchange-traded yield − your purchase yield, × years to maturity ≈ what the deal cost you, per ₹100. Needs only your contract note, the exchange report, and the seesaw you already operate. No testimony required.
+        </li>
+      </ol>
+    </div>
+
+    <h2 style="font-size:1.15rem;margin-top:1.8rem;">The standing discipline · before every future deal</h2>
+    <div class="note">
+      <span class="mono">The 3-source rule</span><br>
+      No deal proceeds until the offered price has been checked against <strong>(1) exchange trade data, (2) at least one competing platform quote, and (3) your own yield calculation.</strong> Fifteen minutes of work. If all three agree the price is fair, proceed with full confidence — and tell Karan you checked. An intermediary who knows you verify treats you as a peer, permanently.
+    </div>
+
+    <p style="font-size:.92rem;"><em>Note the shift this creates: Karan's confidence problem is solved too. A client who verifies and still chooses him is the strongest endorsement he can have. You are not auditing him into a corner — you are upgrading the relationship from dependence to partnership.</em></p>
+  </section>
+
+  <!-- ============ COUPON TRACKER ============ -->
+  <section>
+    <span class="folio">Entry 09 · The Coupon Verification Ritual</span>
+    <h2>Thirty seconds a month: expected vs. received.</h2>
+
+    <p>The machine's promise, in your numbers: <strong>4,500 units × ₹1,000 face × 9.21% ÷ 12 months</strong>. Work it once by hand before using the calculator below — the arithmetic should become yours, not the page's.</p>
+
+    <div class="stamp-row">
+      <div class="stamp">
+        <span class="small">Expected · Every Month</span>
+        <span class="big">₹31,083.75</span>
+        <span class="small">net of 10% TDS · gross ₹34,537.50</span>
+      </div>
+    </div>
+
+    <div class="note" style="border-left-color:var(--alert);">
+      <span class="mono" style="color:var(--alert);">Corrected · TDS applies (my earlier note was outdated)</span><br>
+      The old Section 193 exemption for listed demat NCDs was <strong>removed by Finance Act 2023</strong> (effective 1-Apr-2023). Current rule: <strong>10% TDS</strong> is deducted on the interest (20% if PAN invalid). Expected net monthly credit: <strong>₹34,537.50 − ₹3,453.75 = ₹31,083.75</strong>. The deducted amount is advance tax — verify it appears in Form 26AS/AIS against your PAN, and it adjusts at ITR filing. A lesson kept deliberately visible: even this ledger's numbers obey the 3-source rule.
+    </div>
+
+    <h2 style="font-size:1.15rem;margin-top:1.8rem;">Variance check · enter what actually arrived</h2>
+    <div class="seesaw-card">
+      <h3>The thirty-second ritual</h3>
+      <p class="hint">When a coupon credits, type the received amount. The verdict is instant.</p>
+      <div class="slider-row" style="max-width:20rem;">
+        <label for="receivedInput">Amount received (₹)</label>
+        <input type="number" id="receivedInput" inputmode="decimal" placeholder="e.g. 34537.50"
+               style="width:100%;padding:.6rem .8rem;font-family:'Courier New',monospace;font-size:1.1rem;border:1.5px solid var(--ink);border-radius:6px;background:var(--paper);color:var(--ink);"
+               aria-label="Coupon amount received in rupees">
+      </div>
+      <div class="readout">
+        <div><span class="k">Expected (Net)</span><span class="v">₹31,083.75</span></div>
+        <div><span class="k">Variance</span><span class="v" id="varianceOut">—</span></div>
+      </div>
+      <p class="verdict" id="couponVerdict">Awaiting July's credit…</p>
+    </div>
+
+    <h2 style="font-size:1.15rem;margin-top:1.8rem;">The written record · fill by hand, month by month</h2>
+    <p style="font-size:.92rem;"><em>Tap any cell in the last three columns to type into it. This page does not save data between sessions — after filling a row, take a screenshot or print to PDF. The permanence should live in your records, not in a browser's memory.</em></p>
+
+    <div class="drill">
+      <div class="drill-head">Coupon Ledger · EFSL NCD · 4,500 units</div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:.85rem;font-family:'Courier New',monospace;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--ink);">
+              <th style="text-align:left;padding:.6rem .8rem;">Month</th>
+              <th style="text-align:right;padding:.6rem .8rem;">Expected</th>
+              <th style="text-align:right;padding:.6rem .8rem;">Received</th>
+              <th style="text-align:left;padding:.6rem .8rem;">Date</th>
+              <th style="text-align:left;padding:.6rem .8rem;">✓/✗ + Note</th>
+            </tr>
+          </thead>
+          <tbody id="couponRows">
+            <tr style="border-bottom:1px solid var(--rule);">
+              <td style="padding:.55rem .8rem;">Jul 2026</td>
+              <td style="text-align:right;padding:.55rem .8rem;">31,083.75</td>
+              <td contenteditable="true" style="text-align:right;padding:.55rem .8rem;background:var(--paper-deep);min-width:6rem;"></td>
+              <td contenteditable="true" style="padding:.55rem .8rem;background:var(--paper-deep);min-width:6rem;"></td>
+              <td contenteditable="true" style="padding:.55rem .8rem;background:var(--paper-deep);min-width:8rem;"></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--rule);">
+              <td style="padding:.55rem .8rem;">Aug 2026</td>
+              <td style="text-align:right;padding:.55rem .8rem;">31,083.75</td>
+              <td contenteditable="true" style="text-align:right;padding:.55rem .8rem;background:var(--paper-deep);"></td>
+              <td contenteditable="true" style="padding:.55rem .8rem;background:var(--paper-deep);"></td>
+              <td contenteditable="true" style="padding:.55rem .8rem;background:var(--paper-deep);"></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--rule);">
+              <td style="padding:.55rem .8rem;">Sep 2026</td>
+              <td style="text-align:right;padding:.55rem .8rem;">31,083.75</td>
+              <td contenteditable="true" style="text-align:right;padding:.55rem .8rem;background:var(--paper-deep);"></td>
+              <td contenteditable="true" style="padding:.55rem .8rem;background:var(--paper-deep);"></td>
+              <td contenteditable="true" style="padding:.55rem .8rem;background:var(--paper-deep);"></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--rule);">
+              <td style="padding:.55rem .8rem;">Oct 2026</td>
+              <td style="text-align:right;padding:.55rem .8rem;">31,083.75</td>
+              <td contenteditable="true" style="text-align:right;padding:.55rem .8rem;background:var(--paper-deep);"></td>
+              <td contenteditable="true" style="padding:.55rem .8rem;background:var(--paper-deep);"></td>
+              <td contenteditable="true" style="padding:.55rem .8rem;background:var(--paper-deep);"></td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--rule);">
+              <td style="padding:.55rem .8rem;">Nov 2026</td>
+              <td style="text-align:right;padding:.55rem .8rem;">31,083.75</td>
+              <td contenteditable="true" style="text-align:right;padding:.55rem .8rem;background:var(--paper-deep);"></td>
+              <td contenteditable="true" style="padding:.55rem .8rem;background:var(--paper-deep);"></td>
+              <td contenteditable="true" style="padding:.55rem .8rem;background:var(--paper-deep);"></td>
+            </tr>
+            <tr>
+              <td style="padding:.55rem .8rem;">Dec 2026</td>
+              <td style="text-align:right;padding:.55rem .8rem;">31,083.75</td>
+              <td contenteditable="true" style="text-align:right;padding:.55rem .8rem;background:var(--paper-deep);"></td>
+              <td contenteditable="true" style="padding:.55rem .8rem;background:var(--paper-deep);"></td>
+              <td contenteditable="true" style="padding:.55rem .8rem;background:var(--paper-deep);"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="note">
+      <span class="mono">The two-cycle test · your own words</span><br>
+      "By not getting impatient and staying invested and see how interest payment pans out for July August." Two clean rows above = the machine verified, the exit anxiety answered with data. Any variance = a factual, specific question for Nuvama — not a worry, a work item.
+    </div>
+  </section>
+
+  <!-- ============ MARKET LOG ============ -->
+  <section>
+    <span class="folio">Entry 10 · The Market Log</span>
+    <h2>Track the wobble. Your yield stands still.</h2>
+
+    <p>Each time you check the screen price (ICICI Direct LTP), log it here. The page computes what that price means — for a <em>new buyer</em>, and for your <em>notional</em> exit — while your own numbers stay carved where June 30 left them: <strong>dirty price ₹1,010 · locked yield 9.12% · coupon 9.21% on face</strong>.</p>
+
+    <div class="note">
+      <span class="mono">Who gains from fluctuations — a fact this log encodes</span><br>
+      The issuer earns <strong>nothing</strong> when the screen price moves — their cost was fixed at issue. Price wobble is money changing hands between <em>market participants</em> (traders, intermediaries via markups). This log therefore tracks two honest quantities: the <strong>new-buyer yield</strong> at each logged price, and your <strong>notional gain/loss</strong> if you sold that day (4,500 units). Neither touches your monthly coupon.
+    </div>
+
+    <div class="seesaw-card">
+      <h3>Log an observation</h3>
+      <p class="hint">Data lives in this browser's storage on your domain — export regularly for permanence.</p>
+      <div class="config" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;">
+        <div>
+          <label for="logDate" style="display:block;font-family:'Courier New',monospace;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:.35rem;">Date</label>
+          <input type="date" id="logDate" style="width:100%;padding:.5rem .6rem;font-family:'Courier New',monospace;font-size:1rem;border:1.5px solid var(--ink);border-radius:6px;background:var(--paper);color:var(--ink);">
+        </div>
+        <div>
+          <label for="logPrice" style="display:block;font-family:'Courier New',monospace;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:.35rem;">Screen price (₹/unit)</label>
+          <input type="number" id="logPrice" inputmode="decimal" step="0.05" placeholder="e.g. 975.00" style="width:100%;padding:.5rem .6rem;font-family:'Courier New',monospace;font-size:1rem;border:1.5px solid var(--ink);border-radius:6px;background:var(--paper);color:var(--ink);">
+        </div>
+      </div>
+      <div style="margin-top:1rem;">
+        <label for="logNote" style="display:block;font-family:'Courier New',monospace;font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:.35rem;">Note (optional)</label>
+        <input type="text" id="logNote" maxlength="140" placeholder="e.g. thin trade, 0.00% change shown" style="width:100%;padding:.5rem .6rem;font-family:Georgia,serif;font-size:.95rem;border:1.5px solid var(--ink);border-radius:6px;background:var(--paper);color:var(--ink);">
+      </div>
+      <div style="text-align:center;margin-top:1.1rem;">
+        <button onclick="addLogEntry()" style="font-family:'Courier New',monospace;font-size:.75rem;letter-spacing:.18em;text-transform:uppercase;background:var(--ink);border:1.5px solid var(--ink);color:var(--paper);border-radius:5px;padding:.6rem 1.4rem;cursor:pointer;">Log it</button>
+      </div>
+      <p class="verdict" id="logStatus"></p>
+    </div>
+
+    <h2 style="font-size:1.15rem;margin-top:1.8rem;">The graph · market wobble vs. your fixed line</h2>
+    <div class="seesaw-card">
+      <canvas id="logChart" width="640" height="300" style="width:100%;height:auto;" role="img" aria-label="Chart of logged screen prices against your fixed purchase price of 1010 rupees"></canvas>
+      <p class="hint" style="margin-top:.6rem;">Solid line: logged screen prices. Dashed line: your dirty price ₹1,010 — the unmoving reference. Below it, a new buyer out-yields you; above it, your entry looks cheap.</p>
+    </div>
+
+    <h2 style="font-size:1.15rem;margin-top:1.8rem;">The record</h2>
+    <div class="drill">
+      <div class="drill-head">Market Observations · stored in this browser</div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:.82rem;font-family:'Courier New',monospace;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--ink);">
+              <th style="text-align:left;padding:.55rem .7rem;">Date</th>
+              <th style="text-align:right;padding:.55rem .7rem;">Price</th>
+              <th style="text-align:right;padding:.55rem .7rem;">New-buyer yield</th>
+              <th style="text-align:right;padding:.55rem .7rem;">Spread vs 9.12%</th>
+              <th style="text-align:right;padding:.55rem .7rem;">Notional Δ (4,500u)</th>
+              <th style="text-align:left;padding:.55rem .7rem;">Note</th>
+              <th style="padding:.55rem .4rem;"></th>
+            </tr>
+          </thead>
+          <tbody id="logRows"></tbody>
+        </table>
+      </div>
+      <div style="padding:.9rem 1.2rem;border-top:1px solid var(--rule);text-align:center;">
+        <button onclick="exportJSON()" style="font-family:'Courier New',monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;background:none;border:1.5px solid var(--gold);color:var(--gold);border-radius:4px;padding:.45rem .9rem;margin:.2rem;cursor:pointer;">Export JSON</button>
+        <button onclick="exportCSV()" style="font-family:'Courier New',monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;background:none;border:1.5px solid var(--gold);color:var(--gold);border-radius:4px;padding:.45rem .9rem;margin:.2rem;cursor:pointer;">Export CSV</button>
+        <label style="font-family:'Courier New',monospace;font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;border:1.5px solid var(--verdigris,#71917C);border-color:var(--good);color:var(--good);border-radius:4px;padding:.45rem .9rem;margin:.2rem;cursor:pointer;display:inline-block;">
+          Import JSON<input type="file" id="importFile" accept=".json" onchange="importJSON(event)" style="display:none;">
+        </label>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RECALL DRILL ============ -->
+  <section>
+    <span class="folio">Entry 06 · Recall Drill</span>
+    <h2>Let it settle. Then test the settling.</h2>
+    <p>Come back to these tomorrow, then again in a week. Answer aloud before revealing — the effort of retrieving is what builds the memory.</p>
+
+    <div class="drill">
+      <div class="drill-head">Retrieval Practice · 8 Questions</div>
+
+      <div class="q">
+        <p class="question">1. The market price of your EFSL units rises to ₹1,080. Does a new buyer at that price earn more or less than your 9.21% — and why?</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer"><strong>Less.</strong> The coupon is still ₹92.10, but they paid ₹1,080 for it → ₹92.10 ÷ ₹1,080 ≈ <strong>8.53%</strong>. Price up, yield down — the seesaw tilted.</div>
+      </div>
+
+      <div class="q">
+        <p class="question">2. Where does an intermediary's markup usually hide in a secondary-market bond deal?</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer"><strong>Inside the price itself</strong> — not as a visible fee on any receipt. Like the mandi trader's ₹4, it is folded into what you paid, silently lowering your yield.</div>
+      </div>
+
+      <div class="q">
+        <p class="question">3. What single comparison tells you whether you paid a fair price or an embedded markup?</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer">Your purchase price vs. <strong>what other trades in the same ISIN executed at around your purchase date</strong> (NSE/BSE debt-segment trade data). Near market = fair; meaningfully above = markup from your return.</div>
+      </div>
+
+      <div class="q">
+        <p class="question">4. Why is relying on one advisor without independent verification a form of concentration risk?</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer">Because every decision inherits the <strong>same single judgment</strong> — its flaws, biases, and incentives included. Ten bonds picked by one unverified mind is one bet made ten times. The single point of failure moved from the asset to the advisor.</div>
+      </div>
+
+      <div class="q">
+        <p class="question">5. In your EFSL deal, who was the seller, who was the buyer, and what exactly was Karan's role?</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer">Seller: <strong>Nuvama</strong> (or its counterparty). Buyer: <strong>you</strong>. Karan: the <strong>intermediary/referrer</strong> — the mandi trader who stands between the parties, appears on no contract note, and earns from the flow. That absence from the paperwork is precisely why his earning stays invisible.</div>
+      </div>
+
+      <div class="q">
+        <p class="question">6. What is your mental anchor figure for total intermediary cost on a ₹45 lakh deal — and what do you do if the disclosed number sits above it?</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer">Anchor: <strong>1% = ₹45,000</strong>. Above it → negotiate, using long-term volume as your leverage. Near or below it → within market norms. And remember: his <em>willingness to disclose</em> is a more important data point than the number itself.</div>
+      </div>
+
+      <div class="q">
+        <p class="question">7. Name the three independent sources in your 3-source rule — and which one is the "ground truth" no one can argue with?</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer">(1) <strong>Exchange trade reports</strong> (NSE/BSE corporate bond data), (2) <strong>competing platform quotes</strong> on the same ISIN, (3) <strong>your own yield calculation</strong>. The ground truth is the exchange trade report — actual executed prices, reported by regulation, independent of anyone's word including an AI's.</div>
+      </div>
+
+      <div class="q">
+        <p class="question">8. Why does the person who names a number first control the negotiation — and what is the one-word flaw in how minds adjust away from an anchor?</p>
+        <button onclick="reveal(this)" aria-expanded="false">Reveal answer</button>
+        <div class="answer">Because a mind <strong>cannot ignore a number it has heard</strong> — the first figure becomes the reference point all later numbers are judged against. The flaw: adjustment from the anchor is <strong>insufficient</strong> — people drift a little from it, never all the way to the truth. Which is why you walk in carrying your verified anchor (1% = ₹45,000), place it calmly, and go silent.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  "The coupon never moves. Only what you paid for it does."
+  <span class="mono">Personal study ledger · Not investment advice · Revisit weekly</span>
+</footer>
+
+<script>
+  const COUPON = 92.10;
+  const slider = document.getElementById('priceSlider');
+  const beam = document.getElementById('beam');
+  const pricePan = document.getElementById('pricePan');
+  const yieldPan = document.getElementById('yieldPan');
+  const priceOut = document.getElementById('priceOut');
+  const yieldOut = document.getElementById('yieldOut');
+  const verdict = document.getElementById('verdict');
+
+  function fmt(n){ return '₹' + n.toLocaleString('en-IN'); }
+
+  function update(){
+    const price = Number(slider.value);
+    const yld = (COUPON / price) * 100;
+    const yldStr = yld.toFixed(2) + '%';
+
+    pricePan.textContent = fmt(price);
+    yieldPan.textContent = yldStr;
+    priceOut.textContent = fmt(price);
+    yieldOut.textContent = yldStr;
+
+    /* tilt: price above par -> price side sinks (rotate positive), yield side rises */
+    const maxTilt = 9;
+    const tilt = ((price - 1000) / 100) * maxTilt;
+    beam.style.transform = 'translate(-50%,-50%) rotate(' + tilt + 'deg)';
+
+    yieldOut.classList.remove('up','down','par');
+    if (price > 1000){
+      yieldOut.classList.add('down');
+      verdict.textContent = 'You paid above face value — the same ₹92.10 now earns you less than the coupon rate.';
+    } else if (price < 1000){
+      yieldOut.classList.add('up');
+      verdict.textContent = 'You paid below face value — the same ₹92.10 now earns you more than the coupon rate.';
+    } else {
+      yieldOut.classList.add('par');
+      verdict.textContent = 'At face value — you earn exactly the coupon rate.';
+    }
+  }
+
+  slider.addEventListener('input', update);
+  update();
+
+  function reveal(btn){
+    const ans = btn.nextElementSibling;
+    const showing = ans.classList.toggle('show');
+    btn.setAttribute('aria-expanded', showing);
+    btn.textContent = showing ? 'Hide answer' : 'Reveal answer';
+  }
+
+  /* ---- Coupon variance ritual ---- */
+  const EXPECTED = 31083.75; /* net of 10% TDS; gross ₹34,537.50 */
+  const receivedInput = document.getElementById('receivedInput');
+  const varianceOut = document.getElementById('varianceOut');
+  const couponVerdict = document.getElementById('couponVerdict');
+
+  receivedInput.addEventListener('input', function(){
+    const val = parseFloat(receivedInput.value);
+    if (isNaN(val) || receivedInput.value.trim() === ''){
+      varianceOut.textContent = '—';
+      varianceOut.classList.remove('up','down','par');
+      couponVerdict.textContent = 'Awaiting July\u2019s credit\u2026';
+      return;
+    }
+    const diff = val - EXPECTED;
+    varianceOut.textContent = (diff < 0 ? '−₹' : diff > 0 ? '+₹' : '₹') + Math.abs(diff).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+    varianceOut.classList.remove('up','down','par');
+    if (Math.abs(diff) < 1){
+      varianceOut.classList.add('par');
+      couponVerdict.textContent = 'Exact match — the machine delivered precisely as promised. Log it and move on.';
+    } else if (diff < 0){
+      varianceOut.classList.add('down');
+      couponVerdict.textContent = 'Shortfall vs the net-of-TDS figure. Not a worry — a work item. Check the credit narration and your Form 26AS for the TDS entry, then raise a specific query with Nuvama.';
+    } else {
+      varianceOut.classList.add('up');
+      couponVerdict.textContent = 'More than expected — likely an adjustment or rounding. Verify the narration before celebrating.';
+    }
+  });
+
+  /* ================= ENTRY 10 · MARKET LOG ================= */
+  const LOG_KEY = 'efsl_market_log_v1';
+  const MY_DIRTY = 1010.00;
+  const MY_YIELD = 9.12;   /* 92.10 / 1010 */
+  const COUPON_RS = 92.10;
+  const UNITS = 4500;
+
+  function todayISO(){
+    const d = new Date();
+    const off = d.getTimezoneOffset();
+    return new Date(d.getTime() - off*60000).toISOString().slice(0,10);
+  }
+
+  function loadLog(){
+    try{
+      const raw = localStorage.getItem(LOG_KEY);
+      return raw ? JSON.parse(raw) : [];
+    }catch(e){ return []; }
+  }
+  function saveLog(entries){
+    try{
+      localStorage.setItem(LOG_KEY, JSON.stringify(entries));
+      return true;
+    }catch(e){ return false; }
+  }
+
+  function addLogEntry(){
+    const dateEl = document.getElementById('logDate');
+    const priceEl = document.getElementById('logPrice');
+    const noteEl = document.getElementById('logNote');
+    const status = document.getElementById('logStatus');
+    const date = dateEl.value || todayISO();
+    const price = parseFloat(priceEl.value);
+    if (isNaN(price) || price <= 0){
+      status.textContent = 'Enter a valid screen price first.';
+      return;
+    }
+    const entries = loadLog();
+    entries.push({ date, price, note: (noteEl.value || '').trim() });
+    entries.sort(function(a,b){ return a.date.localeCompare(b.date); });
+    const ok = saveLog(entries);
+    status.textContent = ok
+      ? 'Logged. ' + entries.length + ' observation' + (entries.length>1?'s':'') + ' on record.'
+      : 'Saved for this session only — storage unavailable in this viewer. Use Export to keep it.';
+    priceEl.value = '';
+    noteEl.value = '';
+    renderLog();
+  }
+
+  function deleteEntry(idx){
+    const entries = loadLog();
+    entries.splice(idx,1);
+    saveLog(entries);
+    renderLog();
+  }
+
+  function fmtIN(n, dec){
+    return Number(n).toLocaleString('en-IN', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+  }
+
+  function renderLog(){
+    const entries = loadLog();
+    const tbody = document.getElementById('logRows');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    entries.forEach(function(e, i){
+      const nbYield = COUPON_RS / e.price * 100;
+      const spread = nbYield - MY_YIELD;
+      const notional = (e.price - MY_DIRTY) * UNITS;
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid var(--rule)';
+      tr.innerHTML =
+        '<td style="padding:.5rem .7rem;">' + e.date + '</td>' +
+        '<td style="text-align:right;padding:.5rem .7rem;">' + fmtIN(e.price,2) + '</td>' +
+        '<td style="text-align:right;padding:.5rem .7rem;">' + nbYield.toFixed(2) + '%</td>' +
+        '<td style="text-align:right;padding:.5rem .7rem;color:' + (spread>0?'var(--good)':spread<0?'var(--alert)':'inherit') + ';">' + (spread>0?'+':'') + spread.toFixed(2) + '%</td>' +
+        '<td style="text-align:right;padding:.5rem .7rem;color:' + (notional<0?'var(--alert)':'var(--good)') + ';">' + (notional>=0?'+₹':'−₹') + fmtIN(Math.abs(notional),0) + '</td>' +
+        '<td style="padding:.5rem .7rem;font-family:Georgia,serif;font-size:.85rem;"></td>' +
+        '<td style="padding:.5rem .4rem;text-align:center;"><button onclick="deleteEntry(' + i + ')" aria-label="Delete this entry" style="background:none;border:none;color:var(--alert);cursor:pointer;font-size:1rem;">✕</button></td>';
+      tr.children[5].textContent = e.note || '';
+      tbody.appendChild(tr);
+    });
+    drawChart(entries);
+  }
+
+  function drawChart(entries){
+    const cv = document.getElementById('logChart');
+    if (!cv) return;
+    const ctx = cv.getContext('2d');
+    ctx.clearRect(0,0,cv.width,cv.height);
+    const W = cv.width, H = cv.height;
+    const padL = 56, padR = 16, padT = 18, padB = 34;
+
+    const css = getComputedStyle(document.documentElement);
+    const inkCol = css.getPropertyValue('--ink').trim() || '#12332B';
+    const goldCol = css.getPropertyValue('--gold').trim() || '#B8860B';
+    const softCol = css.getPropertyValue('--ink-soft').trim() || '#2E5648';
+
+    const prices = entries.map(function(e){return e.price;});
+    let lo = entries.length ? Math.min.apply(null, prices.concat([MY_DIRTY])) : 950;
+    let hi = entries.length ? Math.max.apply(null, prices.concat([MY_DIRTY])) : 1050;
+    const span = Math.max(hi - lo, 10);
+    lo -= span * 0.12; hi += span * 0.12;
+
+    function x(i){
+      if (entries.length <= 1) return padL + (W - padL - padR) / 2;
+      return padL + (W - padL - padR) * i / (entries.length - 1);
+    }
+    function y(p){ return padT + (H - padT - padB) * (1 - (p - lo) / (hi - lo)); }
+
+    ctx.strokeStyle = softCol; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, padT); ctx.lineTo(padL, H - padB); ctx.lineTo(W - padR, H - padB); ctx.stroke();
+
+    ctx.fillStyle = softCol;
+    ctx.font = '11px Courier New, monospace';
+    ctx.textAlign = 'right';
+    for (let k = 0; k <= 4; k++){
+      const val = lo + (hi - lo) * k / 4;
+      const yy = y(val);
+      ctx.fillText('₹' + Math.round(val), padL - 6, yy + 4);
+      ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+      ctx.beginPath(); ctx.moveTo(padL, yy); ctx.lineTo(W - padR, yy); ctx.stroke();
+    }
+
+    ctx.strokeStyle = goldCol; ctx.lineWidth = 1.6; ctx.setLineDash([7,5]);
+    ctx.beginPath(); ctx.moveTo(padL, y(MY_DIRTY)); ctx.lineTo(W - padR, y(MY_DIRTY)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = goldCol;
+    ctx.textAlign = 'left';
+    ctx.fillText('your ₹1,010', padL + 4, y(MY_DIRTY) - 6);
+
+    if (!entries.length){
+      ctx.fillStyle = softCol;
+      ctx.textAlign = 'center';
+      ctx.font = 'italic 13px Georgia, serif';
+      ctx.fillText('Log your first observation to begin the line.', W/2, H/2);
+      return;
+    }
+
+    ctx.strokeStyle = inkCol; ctx.lineWidth = 2;
+    ctx.beginPath();
+    entries.forEach(function(e,i){
+      const xx = x(i), yy = y(e.price);
+      if (i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+    });
+    ctx.stroke();
+
+    entries.forEach(function(e,i){
+      const xx = x(i), yy = y(e.price);
+      ctx.fillStyle = inkCol;
+      ctx.beginPath(); ctx.arc(xx, yy, 3.5, 0, Math.PI*2); ctx.fill();
+      const showLabel = (i===0 || i===entries.length-1 || entries.length<=6 || i % Math.ceil(entries.length/6) === 0);
+      if (showLabel){
+        ctx.fillStyle = softCol;
+        ctx.font = '10px Courier New, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(e.date.slice(5), xx, H - padB + 14);
+      }
+    });
+  }
+
+  function exportJSON(){
+    const data = {
+      instrument: 'EFSL NCD 9.21% Mar-2031',
+      isin: 'INE532F07IV9',
+      units: UNITS,
+      my_dirty_price: MY_DIRTY,
+      my_locked_yield_pct: MY_YIELD,
+      exported_at: new Date().toISOString(),
+      observations: loadLog()
+    };
+    downloadFile('efsl-market-log.json', JSON.stringify(data, null, 2), 'application/json');
+  }
+
+  function exportCSV(){
+    const entries = loadLog();
+    let csv = 'date,price,new_buyer_yield_pct,spread_vs_9.12_pct,notional_delta_4500u,note\n';
+    entries.forEach(function(e){
+      const nb = COUPON_RS / e.price * 100;
+      csv += e.date + ',' + e.price.toFixed(2) + ',' + nb.toFixed(2) + ',' + (nb - MY_YIELD).toFixed(2) + ',' + ((e.price - MY_DIRTY) * UNITS).toFixed(0) + ',"' + (e.note||'').replace(/"/g,'""') + '"\n';
+    });
+    downloadFile('efsl-market-log.csv', csv, 'text/csv');
+  }
+
+  function downloadFile(name, content, mime){
+    const blob = new Blob([content], {type: mime});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }
+
+  function importJSON(evt){
+    const file = evt.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(){
+      try{
+        const parsed = JSON.parse(reader.result);
+        const obs = Array.isArray(parsed) ? parsed : (parsed.observations || []);
+        const clean = obs.filter(function(o){ return o && o.date && typeof o.price === 'number'; })
+          .map(function(o){ return {date:String(o.date).slice(0,10), price:o.price, note:String(o.note||'').slice(0,140)}; });
+        if (!clean.length){ document.getElementById('logStatus').textContent = 'No valid observations found in that file.'; return; }
+        const existing = loadLog();
+        const merged = existing.concat(clean);
+        const seen = {};
+        const dedup = merged.filter(function(o){
+          const k = o.date + '|' + o.price;
+          if (seen[k]) return false; seen[k] = true; return true;
+        });
+        dedup.sort(function(a,b){ return a.date.localeCompare(b.date); });
+        saveLog(dedup);
+        document.getElementById('logStatus').textContent = 'Imported. ' + dedup.length + ' total observations.';
+        renderLog();
+      }catch(e){
+        document.getElementById('logStatus').textContent = 'Could not read that file — is it the exported JSON?';
+      }
+      evt.target.value = '';
+    };
+    reader.readAsText(file);
+  }
+
+  /* init market log */
+  (function(){
+    const dEl = document.getElementById('logDate');
+    if (dEl) dEl.value = todayISO();
+    renderLog();
+  })();
+</script>
+
+</body>
+</html>
