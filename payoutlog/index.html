@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EFSL NCD Tracker · Payouts & Price Log · 2026–2031</title>
+<style>
+  :root{
+    --ink:#12332B;
+    --ink-soft:#2E5648;
+    --paper:#F7F5EE;
+    --paper-deep:#EEEBDF;
+    --gold:#B8860B;
+    --rule:#C9C3AE;
+    --alert:#8C3A2B;
+    --good:#2F6B3F;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:Georgia,'Times New Roman',serif;
+    font-size:16px;
+    line-height:1.6;
+  }
+  .mono{font-family:'Courier New',Courier,monospace;}
+  header{
+    border-bottom:3px double var(--ink);
+    padding:1.8rem 1.2rem 1.3rem;
+    text-align:center;
+  }
+  .eyebrow{font-family:'Courier New',monospace;font-size:.68rem;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-soft);}
+  h1{font-size:clamp(1.6rem,5vw,2.4rem);font-weight:700;margin:.4rem 0 .2rem;}
+  h1 span{color:var(--gold);font-style:italic;}
+  header p{font-style:italic;color:var(--ink-soft);font-size:.92rem;}
+
+  main{max-width:52rem;margin:0 auto;padding:0 1rem 4rem;}
+
+  /* fixed facts strip */
+  .facts{
+    display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;
+    margin:1.2rem 0;
+  }
+  .fact{
+    border:1.5px solid var(--ink);
+    border-radius:6px;
+    padding:.5rem .9rem;
+    text-align:center;
+    background:var(--paper);
+  }
+  .fact .k{font-family:'Courier New',monospace;font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-soft);display:block;}
+  .fact .v{font-family:'Courier New',monospace;font-weight:700;font-size:1rem;}
+
+  /* tabs */
+  .tabs{
+    display:flex;gap:.4rem;justify-content:center;
+    margin:1.6rem 0 1.2rem;
+  }
+  .tabs button{
+    font-family:'Courier New',monospace;
+    font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;
+    padding:.6rem 1.1rem;
+    border:1.5px solid var(--ink);
+    border-radius:6px 6px 0 0;
+    background:var(--paper-deep);
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .tabs button.active{background:var(--ink);color:var(--paper);}
+  .tabpane{display:none;}
+  .tabpane.active{display:block;}
+
+  .card{
+    border:1.5px solid var(--ink);
+    border-radius:8px;
+    background:var(--paper);
+    box-shadow:4px 4px 0 var(--paper-deep);
+    padding:1.3rem 1.2rem 1.5rem;
+    margin:1rem 0;
+  }
+  .card h3{font-size:1.02rem;margin-bottom:.8rem;}
+  .grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.9rem;
+  }
+  label{
+    display:block;font-family:'Courier New',monospace;
+    font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-soft);margin-bottom:.3rem;
+  }
+  input[type=date],input[type=number],input[type=text],select{
+    width:100%;padding:.5rem .6rem;
+    font-family:'Courier New',monospace;font-size:.95rem;
+    border:1.5px solid var(--ink);border-radius:6px;
+    background:var(--paper);color:var(--ink);
+  }
+  input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:2px;}
+  .btn{
+    font-family:'Courier New',monospace;font-size:.72rem;
+    letter-spacing:.16em;text-transform:uppercase;
+    background:var(--ink);border:1.5px solid var(--ink);color:var(--paper);
+    border-radius:5px;padding:.55rem 1.2rem;cursor:pointer;
+  }
+  .btn.ghost{background:none;color:var(--gold);border-color:var(--gold);}
+  .btn.safe{background:none;color:var(--good);border-color:var(--good);}
+  .status{font-style:italic;color:var(--ink-soft);font-size:.9rem;min-height:1.4em;margin-top:.7rem;text-align:center;}
+
+  table{width:100%;border-collapse:collapse;font-size:.8rem;font-family:'Courier New',monospace;}
+  thead tr{border-bottom:2px solid var(--ink);}
+  th{text-align:right;padding:.5rem .55rem;white-space:nowrap;}
+  th:first-child{text-align:left;}
+  td{padding:.45rem .55rem;text-align:right;border-bottom:1px solid var(--rule);white-space:nowrap;}
+  td:first-child{text-align:left;}
+  td.note-cell{text-align:left;font-family:Georgia,serif;font-size:.82rem;white-space:normal;}
+  .pos{color:var(--good);}
+  .neg{color:var(--alert);}
+  .del{background:none;border:none;color:var(--alert);cursor:pointer;font-size:.95rem;}
+  .tablewrap{overflow-x:auto;}
+
+  .summary{
+    display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center;margin-top:1rem;
+  }
+  .summary .fact{border-color:var(--gold);}
+
+  .io-bar{text-align:center;margin-top:1.2rem;}
+  .io-bar .btn{margin:.2rem;}
+  .filelabel{
+    font-family:'Courier New',monospace;font-size:.72rem;
+    letter-spacing:.16em;text-transform:uppercase;
+    border:1.5px solid var(--good);color:var(--good);
+    border-radius:5px;padding:.55rem 1.2rem;cursor:pointer;display:inline-block;margin:.2rem;
+  }
+  .note{
+    background:var(--paper-deep);
+    border-left:3px solid var(--gold);
+    padding:.8rem 1rem;margin:1rem 0;font-size:.88rem;
+  }
+  canvas{width:100%;height:auto;}
+  footer{
+    border-top:3px double var(--ink);
+    margin-top:2.5rem;padding:1.2rem;text-align:center;
+    font-size:.8rem;color:var(--ink-soft);font-style:italic;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="eyebrow">Standalone Tracking Instrument · 2026–2031</span>
+  <h1>EFSL NCD <span>Tracker</span></h1>
+  <p>Payout verification & market price log · data stays in this browser · export monthly for permanence</p>
+</header>
+
+<main>
+
+  <div class="facts">
+    <div class="fact"><span class="k">ISIN</span><span class="v">INE532F07IV9</span></div>
+    <div class="fact"><span class="k">Units</span><span class="v">4,500</span></div>
+    <div class="fact"><span class="k">Your Dirty Price</span><span class="v">₹1,010</span></div>
+    <div class="fact"><span class="k">Locked Yield</span><span class="v">9.12%</span></div>
+    <div class="fact"><span class="k">Coupon</span><span class="v">9.21%</span></div>
+    <div class="fact"><span class="k">Maturity</span><span class="v">18-Mar-2031</span></div>
+  </div>
+
+  <div class="note">
+    <span class="mono" style="color:var(--gold);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;">Expected monthly credit</span><br>
+    Gross <strong>₹34,537.50</strong> · Net of 10% TDS <strong>₹31,083.75</strong>. If your TDS-exemption filing is accepted, credits from August onward should arrive gross — each entry below records which of the two actually happened, so the bank statement settles the question month by month.
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button id="tabP" class="active" onclick="switchTab('payouts')" role="tab" aria-selected="true">Payout Log</button>
+    <button id="tabM" onclick="switchTab('prices')" role="tab" aria-selected="false">Price Log</button>
+  </div>
+
+  <!-- ================= PAYOUTS ================= -->
+  <div id="pane-payouts" class="tabpane active" role="tabpanel">
+    <div class="card">
+      <h3>Log a coupon credit</h3>
+      <div class="grid">
+        <div>
+          <label for="pMonth">Coupon month</label>
+          <input type="month" id="pMonth">
+        </div>
+        <div>
+          <label for="pDate">Credit date</label>
+          <input type="date" id="pDate">
+        </div>
+        <div>
+          <label for="pAmt">Amount received (₹)</label>
+          <input type="number" id="pAmt" step="0.01" inputmode="decimal" placeholder="e.g. 31083.75">
+        </div>
+        <div>
+          <label for="pTds">TDS deducted?</label>
+          <select id="pTds">
+            <option value="yes">Yes (10%)</option>
+            <option value="no">No (exemption applied)</option>
+            <option value="unsure">Unsure</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:.9rem;">
+        <label for="pNote">Note (optional)</label>
+        <input type="text" id="pNote" maxlength="140" placeholder="e.g. narration text, Form 26AS checked">
+      </div>
+      <div style="text-align:center;margin-top:1rem;">
+        <button class="btn" onclick="addPayout()">Log payout</button>
+      </div>
+      <p class="status" id="pStatus"></p>
+    </div>
+
+    <div class="card">
+      <h3>Payout record · toward 57 coupons to maturity</h3>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>Month</th><th>Credit date</th><th>Received</th><th>Vs expected</th><th>TDS</th><th style="text-align:left;">Note</th><th></th></tr>
+          </thead>
+          <tbody id="pRows"></tbody>
+        </table>
+      </div>
+      <div class="summary" id="pSummary"></div>
+    </div>
+  </div>
+
+  <!-- ================= PRICES ================= -->
+  <div id="pane-prices" class="tabpane" role="tabpanel">
+    <div class="card">
+      <h3>Log a screen price (ICICI Direct LTP)</h3>
+      <div class="grid">
+        <div>
+          <label for="mDate">Date</label>
+          <input type="date" id="mDate">
+        </div>
+        <div>
+          <label for="mPrice">Price (₹/unit)</label>
+          <input type="number" id="mPrice" step="0.05" inputmode="decimal" placeholder="e.g. 975.00">
+        </div>
+      </div>
+      <div style="margin-top:.9rem;">
+        <label for="mNote">Note (optional)</label>
+        <input type="text" id="mNote" maxlength="140" placeholder="e.g. 0.00% change shown — possibly stale">
+      </div>
+      <div style="text-align:center;margin-top:1rem;">
+        <button class="btn" onclick="addPrice()">Log price</button>
+      </div>
+      <p class="status" id="mStatus"></p>
+    </div>
+
+    <div class="card">
+      <h3>Price vs. your fixed line</h3>
+      <canvas id="chart" width="680" height="300" role="img" aria-label="Logged screen prices charted against your fixed purchase price of 1010 rupees"></canvas>
+      <p class="status">Solid: market observations · Dashed gold: your ₹1,010 — the line that never moves. Your income is untouched either way.</p>
+    </div>
+
+    <div class="card">
+      <h3>Observation record</h3>
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr><th>Date</th><th>Price</th><th>New-buyer yield</th><th>Spread vs 9.12%</th><th>Notional Δ (4,500u)</th><th style="text-align:left;">Note</th><th></th></tr>
+          </thead>
+          <tbody id="mRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= IMPORT / EXPORT ================= -->
+  <div class="card">
+    <h3 style="text-align:center;">Backup · both logs together</h3>
+    <div class="io-bar">
+      <button class="btn ghost" onclick="exportAll('json')">Export JSON</button>
+      <button class="btn ghost" onclick="exportAll('csv')">Export CSV</button>
+      <label class="filelabel">Import JSON<input type="file" accept=".json" onchange="importAll(event)" style="display:none;"></label>
+    </div>
+    <p class="status">Export after every monthly entry — browser storage is convenient, your own files are permanent.</p>
+  </div>
+
+</main>
+
+<footer>
+  "The coupon never moves. Only what the screen says about strangers' deals does."<br>
+  <span class="mono" style="font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;">Personal tracker · Not investment advice · EFSL 9.21% NCD · 2026–2031</span>
+</footer>
+
+<script>
+  /* ============ CONSTANTS ============ */
+  var K_PAY = 'efsl_payout_log_v1';
+  var K_PRICE = 'efsl_price_log_v1';
+  var GROSS = 34537.50;
+  var NET = 31083.75;
+  var MY_DIRTY = 1010.00;
+  var MY_YIELD = 9.12;
+  var COUPON_RS = 92.10;
+  var UNITS = 4500;
+  var TOTAL_COUPONS = 57; /* Jul 2026 .. Mar 2031 */
+
+  function todayISO(){
+    var d = new Date();
+    return new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+  }
+  function load(key){
+    try{ var r = localStorage.getItem(key); return r ? JSON.parse(r) : []; }
+    catch(e){ return []; }
+  }
+  function save(key, arr){
+    try{ localStorage.setItem(key, JSON.stringify(arr)); return true; }
+    catch(e){ return false; }
+  }
+  function fmtIN(n, dec){
+    return Number(n).toLocaleString('en-IN', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+  }
+
+  /* ============ TABS ============ */
+  function switchTab(which){
+    document.getElementById('pane-payouts').classList.toggle('active', which==='payouts');
+    document.getElementById('pane-prices').classList.toggle('active', which==='prices');
+    document.getElementById('tabP').classList.toggle('active', which==='payouts');
+    document.getElementById('tabM').classList.toggle('active', which==='prices');
+    document.getElementById('tabP').setAttribute('aria-selected', which==='payouts');
+    document.getElementById('tabM').setAttribute('aria-selected', which==='prices');
+    if (which==='prices') drawChart(load(K_PRICE));
+  }
+
+  /* ============ PAYOUTS ============ */
+  function addPayout(){
+    var month = document.getElementById('pMonth').value;
+    var date = document.getElementById('pDate').value || todayISO();
+    var amt = parseFloat(document.getElementById('pAmt').value);
+    var tds = document.getElementById('pTds').value;
+    var note = (document.getElementById('pNote').value || '').trim();
+    var st = document.getElementById('pStatus');
+    if (!month){ st.textContent = 'Pick the coupon month first.'; return; }
+    if (isNaN(amt) || amt <= 0){ st.textContent = 'Enter the received amount.'; return; }
+    var arr = load(K_PAY);
+    arr.push({month:month, date:date, amount:amt, tds:tds, note:note});
+    arr.sort(function(a,b){ return a.month.localeCompare(b.month); });
+    var ok = save(K_PAY, arr);
+    st.textContent = ok ? 'Logged. ' + arr.length + ' of ' + TOTAL_COUPONS + ' coupons recorded.'
+                        : 'Storage unavailable in this viewer — export to keep this entry.';
+    document.getElementById('pAmt').value = '';
+    document.getElementById('pNote').value = '';
+    renderPayouts();
+  }
+  function delPayout(i){
+    var arr = load(K_PAY); arr.splice(i,1); save(K_PAY, arr); renderPayouts();
+  }
+  function renderPayouts(){
+    var arr = load(K_PAY);
+    var tb = document.getElementById('pRows');
+    tb.innerHTML = '';
+    var totalReceived = 0;
+    arr.forEach(function(e,i){
+      totalReceived += e.amount;
+      var expected = (e.tds === 'no') ? GROSS : NET;
+      var diff = e.amount - expected;
+      var tr = document.createElement('tr');
+      var monthLabel = e.month;
+      try{
+        var parts = e.month.split('-');
+        var dt = new Date(Number(parts[0]), Number(parts[1])-1, 1);
+        monthLabel = dt.toLocaleString('en-IN',{month:'short'}) + ' ' + parts[0];
+      }catch(err){}
+      tr.innerHTML =
+        '<td>' + monthLabel + '</td>' +
+        '<td>' + e.date + '</td>' +
+        '<td>₹' + fmtIN(e.amount,2) + '</td>' +
+        '<td class="' + (Math.abs(diff)<1 ? '' : diff<0 ? 'neg':'pos') + '">' + (Math.abs(diff)<1 ? 'exact' : (diff>0?'+₹':'−₹') + fmtIN(Math.abs(diff),2)) + '</td>' +
+        '<td>' + (e.tds==='yes'?'10%':e.tds==='no'?'none':'?') + '</td>' +
+        '<td class="note-cell"></td>' +
+        '<td><button class="del" onclick="delPayout(' + i + ')" aria-label="Delete entry">✕</button></td>';
+      tr.children[5].textContent = e.note || '';
+      tb.appendChild(tr);
+    });
+    var sm = document.getElementById('pSummary');
+    sm.innerHTML =
+      '<div class="fact"><span class="k">Coupons logged</span><span class="v">' + arr.length + ' / ' + TOTAL_COUPONS + '</span></div>' +
+      '<div class="fact"><span class="k">Total received</span><span class="v">₹' + fmtIN(totalReceived,2) + '</span></div>' +
+      '<div class="fact"><span class="k">Two-cycle test</span><span class="v">' + (arr.length>=2 ? 'CLEARED ✓' : arr.length + '/2') + '</span></div>';
+  }
+
+  /* ============ PRICES ============ */
+  function addPrice(){
+    var date = document.getElementById('mDate').value || todayISO();
+    var price = parseFloat(document.getElementById('mPrice').value);
+    var note = (document.getElementById('mNote').value || '').trim();
+    var st = document.getElementById('mStatus');
+    if (isNaN(price) || price <= 0){ st.textContent = 'Enter a valid price.'; return; }
+    var arr = load(K_PRICE);
+    arr.push({date:date, price:price, note:note});
+    arr.sort(function(a,b){ return a.date.localeCompare(b.date); });
+    var ok = save(K_PRICE, arr);
+    st.textContent = ok ? 'Logged. ' + arr.length + ' observation' + (arr.length>1?'s':'') + '.'
+                        : 'Storage unavailable in this viewer — export to keep this entry.';
+    document.getElementById('mPrice').value = '';
+    document.getElementById('mNote').value = '';
+    renderPrices();
+  }
+  function delPrice(i){
+    var arr = load(K_PRICE); arr.splice(i,1); save(K_PRICE, arr); renderPrices();
+  }
+  function renderPrices(){
+    var arr = load(K_PRICE);
+    var tb = document.getElementById('mRows');
+    tb.innerHTML = '';
+    arr.forEach(function(e,i){
+      var nb = COUPON_RS / e.price * 100;
+      var spread = nb - MY_YIELD;
+      var notional = (e.price - MY_DIRTY) * UNITS;
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + e.date + '</td>' +
+        '<td>₹' + fmtIN(e.price,2) + '</td>' +
+        '<td>' + nb.toFixed(2) + '%</td>' +
+        '<td class="' + (spread>0?'pos':spread<0?'neg':'') + '">' + (spread>0?'+':'') + spread.toFixed(2) + '%</td>' +
+        '<td class="' + (notional<0?'neg':'pos') + '">' + (notional>=0?'+₹':'−₹') + fmtIN(Math.abs(notional),0) + '</td>' +
+        '<td class="note-cell"></td>' +
+        '<td><button class="del" onclick="delPrice(' + i + ')" aria-label="Delete entry">✕</button></td>';
+      tr.children[5].textContent = e.note || '';
+      tb.appendChild(tr);
+    });
+    drawChart(arr);
+  }
+
+  function drawChart(entries){
+    var cv = document.getElementById('chart');
+    if (!cv) return;
+    var ctx = cv.getContext('2d');
+    ctx.clearRect(0,0,cv.width,cv.height);
+    var W = cv.width, H = cv.height;
+    var padL = 56, padR = 14, padT = 16, padB = 32;
+    var css = getComputedStyle(document.documentElement);
+    var inkCol = css.getPropertyValue('--ink').trim() || '#12332B';
+    var goldCol = css.getPropertyValue('--gold').trim() || '#B8860B';
+    var softCol = css.getPropertyValue('--ink-soft').trim() || '#2E5648';
+
+    var prices = entries.map(function(e){return e.price;});
+    var lo = entries.length ? Math.min.apply(null, prices.concat([MY_DIRTY])) : 950;
+    var hi = entries.length ? Math.max.apply(null, prices.concat([MY_DIRTY])) : 1050;
+    var span = Math.max(hi - lo, 10);
+    lo -= span*0.12; hi += span*0.12;
+
+    function x(i){
+      if (entries.length <= 1) return padL + (W-padL-padR)/2;
+      return padL + (W-padL-padR)*i/(entries.length-1);
+    }
+    function y(p){ return padT + (H-padT-padB)*(1-(p-lo)/(hi-lo)); }
+
+    ctx.strokeStyle = softCol; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL,padT); ctx.lineTo(padL,H-padB); ctx.lineTo(W-padR,H-padB); ctx.stroke();
+
+    ctx.fillStyle = softCol; ctx.font = '11px Courier New, monospace'; ctx.textAlign = 'right';
+    for (var k=0;k<=4;k++){
+      var val = lo + (hi-lo)*k/4;
+      var yy = y(val);
+      ctx.fillText('₹'+Math.round(val), padL-6, yy+4);
+      ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+      ctx.beginPath(); ctx.moveTo(padL,yy); ctx.lineTo(W-padR,yy); ctx.stroke();
+    }
+
+    ctx.strokeStyle = goldCol; ctx.lineWidth = 1.6; ctx.setLineDash([7,5]);
+    ctx.beginPath(); ctx.moveTo(padL, y(MY_DIRTY)); ctx.lineTo(W-padR, y(MY_DIRTY)); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = goldCol; ctx.textAlign = 'left';
+    ctx.fillText('your ₹1,010 · yield locked 9.12%', padL+4, y(MY_DIRTY)-6);
+
+    if (!entries.length){
+      ctx.fillStyle = softCol; ctx.textAlign = 'center';
+      ctx.font = 'italic 13px Georgia, serif';
+      ctx.fillText('Log your first price to begin the line.', W/2, H/2);
+      return;
+    }
+
+    ctx.strokeStyle = inkCol; ctx.lineWidth = 2;
+    ctx.beginPath();
+    entries.forEach(function(e,i){
+      var xx = x(i), yy = y(e.price);
+      if (i===0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+    });
+    ctx.stroke();
+
+    entries.forEach(function(e,i){
+      var xx = x(i), yy = y(e.price);
+      ctx.fillStyle = inkCol;
+      ctx.beginPath(); ctx.arc(xx,yy,3.5,0,Math.PI*2); ctx.fill();
+      var show = (i===0 || i===entries.length-1 || entries.length<=6 || i % Math.ceil(entries.length/6) === 0);
+      if (show){
+        ctx.fillStyle = softCol; ctx.font = '10px Courier New, monospace'; ctx.textAlign = 'center';
+        ctx.fillText(e.date.slice(5), xx, H-padB+14);
+      }
+    });
+  }
+
+  /* ============ IMPORT / EXPORT ============ */
+  function exportAll(kind){
+    var payouts = load(K_PAY);
+    var prices = load(K_PRICE);
+    if (kind === 'json'){
+      var data = {
+        instrument:'EFSL NCD 9.21% Mar-2031', isin:'INE532F07IV9',
+        units:UNITS, my_dirty_price:MY_DIRTY, my_locked_yield_pct:MY_YIELD,
+        expected_gross:GROSS, expected_net:NET,
+        exported_at:new Date().toISOString(),
+        payouts:payouts, prices:prices
+      };
+      download('efsl-tracker-backup.json', JSON.stringify(data,null,2), 'application/json');
+    } else {
+      var csv = 'PAYOUTS\nmonth,credit_date,amount,tds,vs_expected,note\n';
+      payouts.forEach(function(e){
+        var exp = (e.tds==='no') ? GROSS : NET;
+        csv += e.month + ',' + e.date + ',' + e.amount.toFixed(2) + ',' + e.tds + ',' + (e.amount-exp).toFixed(2) + ',"' + (e.note||'').replace(/"/g,'""') + '"\n';
+      });
+      csv += '\nPRICES\ndate,price,new_buyer_yield_pct,spread_vs_9.12_pct,notional_delta_4500u,note\n';
+      prices.forEach(function(e){
+        var nb = COUPON_RS/e.price*100;
+        csv += e.date + ',' + e.price.toFixed(2) + ',' + nb.toFixed(2) + ',' + (nb-MY_YIELD).toFixed(2) + ',' + ((e.price-MY_DIRTY)*UNITS).toFixed(0) + ',"' + (e.note||'').replace(/"/g,'""') + '"\n';
+      });
+      download('efsl-tracker-backup.csv', csv, 'text/csv');
+    }
+  }
+  function download(name, content, mime){
+    var blob = new Blob([content], {type:mime});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  }
+  function importAll(evt){
+    var file = evt.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var p = JSON.parse(reader.result);
+        var pay = (p.payouts||[]).filter(function(o){return o && o.month && typeof o.amount==='number';});
+        var pri = (p.prices||[]).filter(function(o){return o && o.date && typeof o.price==='number';});
+        var mp = load(K_PAY).concat(pay);
+        var seen = {};
+        mp = mp.filter(function(o){ var k=o.month+'|'+o.amount; if(seen[k])return false; seen[k]=true; return true; });
+        mp.sort(function(a,b){return a.month.localeCompare(b.month);});
+        save(K_PAY, mp);
+        var mr = load(K_PRICE).concat(pri);
+        var seen2 = {};
+        mr = mr.filter(function(o){ var k=o.date+'|'+o.price; if(seen2[k])return false; seen2[k]=true; return true; });
+        mr.sort(function(a,b){return a.date.localeCompare(b.date);});
+        save(K_PRICE, mr);
+        renderPayouts(); renderPrices();
+        document.getElementById('pStatus').textContent = 'Imported. Payouts: ' + mp.length + ' · Prices: ' + mr.length + '.';
+      }catch(e){
+        document.getElementById('pStatus').textContent = 'Could not read that file — is it the exported JSON?';
+      }
+      evt.target.value = '';
+    };
+    reader.readAsText(file);
+  }
+
+  /* ============ INIT ============ */
+  (function(){
+    var d = todayISO();
+    document.getElementById('pDate').value = d;
+    document.getElementById('mDate').value = d;
+    document.getElementById('pMonth').value = d.slice(0,7);
+    renderPayouts();
+    renderPrices();
+  })();
+</script>
+
+</body>
+</html>
